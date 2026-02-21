@@ -3,201 +3,275 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard — App</title>
+  <title>Dashboard — BreachLens</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+          fontFamily: { sans: ['Sora', 'system-ui', 'sans-serif'] },
+          animation: {
+            'float': 'float 8s ease-in-out infinite',
+          },
+          keyframes: {
+            float: { '0%, 100%': { transform: 'translate(0, 0)' }, '50%': { transform: 'translate(20px, -20px)' } },
+          }
         }
       }
     }
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
+    * { box-sizing: border-box; }
+    .scene-3d { perspective: 1000px; }
+    .stat-card-3d {
+      transform-style: preserve-3d;
+      transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.4s ease;
+    }
+    .stat-card-3d:hover {
+      transform: translateY(-6px) rotateX(5deg) translateZ(15px);
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,.4), 0 0 40px -10px rgba(99,102,241,.3);
+    }
     .glass-sidebar {
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      background: rgba(255,255,255,.05);
-      border-right: 1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      background: linear-gradient(180deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,.02) 100%);
+      border-right: 1px solid rgba(255,255,255,.1);
     }
     .glass-card {
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.1);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: linear-gradient(135deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,.03) 100%);
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 4px 24px -4px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.08);
     }
     .glass-nav {
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      background: rgba(0,0,0,.3);
-      border-bottom: 1px solid rgba(255,255,255,.06);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      background: rgba(5,3,13,.7);
+      border-bottom: 1px solid rgba(255,255,255,.08);
     }
-    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(99,102,241,.15); }
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.35;
+      animation: float 12s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, #6366f1 0%, transparent 70%); top: -15%; right: -10%; }
+    .orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, #8b5cf6 0%, transparent 70%); bottom: -10%; left: -5%; animation-delay: -5s; animation-direction: reverse; }
+    .grid-bg {
+      background-image: linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+    .activity-item {
+      transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+    .activity-item:hover {
+      background: rgba(255,255,255,.06);
+      transform: translateX(4px);
+      box-shadow: inset 3px 0 0 #6366f1;
+    }
+    .nav-item {
+      transition: all 0.25s ease;
+    }
+    .nav-item:hover {
+      background: rgba(255,255,255,.08);
+      transform: translateX(2px);
+    }
     .sidebar-collapsed .sidebar-text,
     .sidebar-collapsed .sidebar-brand span { display: none; }
     .sidebar-collapsed { width: 4rem; min-width: 4rem; }
     .sidebar-collapsed .nav-item { justify-content: center; padding-left: 0; padding-right: 0; }
     .sidebar-collapsed .logo-icon { margin: 0; }
-    .activity-item:hover { background: rgba(255,255,255,.04); }
+    .avatar-ring {
+      box-shadow: 0 0 0 2px rgba(255,255,255,.1), 0 0 20px -5px rgba(99,102,241,.5);
+    }
+    .icon-glow { box-shadow: 0 0 20px -5px currentColor; }
   </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-indigo-950 via-black to-purple-950 font-sans text-white flex">
+<body class="min-h-screen bg-[#05030d] grid-bg font-sans text-white flex relative overflow-x-hidden">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
   <aside id="sidebar" class="glass-sidebar w-64 min-w-[16rem] flex flex-col transition-all duration-300 ease-out fixed top-0 left-0 h-full z-40 -translate-x-full lg:translate-x-0">
-    <div class="p-4 flex items-center gap-3 sidebar-brand">
-      <div class="logo-icon w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+    <div class="p-5 flex items-center gap-3 sidebar-brand">
+      <div class="logo-icon w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-violet-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-indigo-500/30">
         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
       </div>
-      <span class="sidebar-text font-semibold text-lg">App</span>
+      <span class="sidebar-text font-bold text-lg tracking-tight">BreachLens</span>
     </div>
     <nav class="flex-1 px-3 py-4 space-y-1">
-      <a href="#" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/10 text-indigo-300 font-medium transition-colors">
-        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl bg-white/10 text-indigo-300 font-medium border border-white/5">
+        <svg class="w-5 h-5 flex-shrink-0 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
         <span class="sidebar-text">Dashboard</span>
       </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl text-white/60 hover:text-white/90">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        <span class="sidebar-text">Profile</span>
+      </a>
+      <a href="#" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl text-white/60 hover:text-white/90">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span class="sidebar-text">Settings</span>
+      </a>
     </nav>
-    <div class="p-3 border-t border-white/5">
-      <a href="/logout" class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-white/70 hover:bg-red-500/20 hover:text-red-300 transition-colors">
+    <div class="p-3 border-t border-white/5 space-y-1">
+      <a href="/logout" class="nav-item flex items-center gap-3 px-3 py-3 rounded-xl text-white/70 hover:bg-red-500/20 hover:text-red-300 hover:border-red-400/20 transition-all border border-transparent">
         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
         <span class="sidebar-text">Logout</span>
       </a>
     </div>
   </aside>
 
-  <div class="flex-1 flex flex-col min-h-screen pl-0 lg:pl-64 transition-all duration-300" id="mainArea">
+  <div class="flex-1 flex flex-col min-h-screen pl-0 lg:pl-64 transition-all duration-300 relative z-10" id="mainArea">
     <header class="glass-nav sticky top-0 z-30 px-6 py-4 flex items-center justify-between">
-      <button id="sidebarToggle" class="p-2 rounded-lg hover:bg-white/10 transition-colors lg:hidden" aria-label="Toggle sidebar">
+      <button id="sidebarToggle" class="p-2.5 rounded-xl hover:bg-white/10 transition-all lg:hidden" aria-label="Toggle sidebar">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
       <div class="flex-1 lg:flex-none"></div>
       <div class="flex items-center gap-4">
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center overflow-hidden flex-shrink-0">
+        <div class="flex items-center gap-4 px-4 py-2 rounded-2xl bg-white/5 border border-white/5">
+          <div class="w-10 h-10 rounded-xl avatar-ring bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center overflow-hidden flex-shrink-0">
             <% if (user.avatar) { %>
               <img src="<%= user.avatar %>" alt="Avatar" class="w-full h-full object-cover" />
             <% } else { %>
-              <span class="text-sm font-semibold"><%= user.name.charAt(0).toUpperCase() %></span>
+              <span class="text-base font-bold"><%= user.name.charAt(0).toUpperCase() %></span>
             <% } %>
           </div>
           <div class="hidden sm:block">
-            <p class="text-sm font-medium text-white"><%= user.name %></p>
+            <p class="text-sm font-semibold text-white"><%= user.name %></p>
             <p class="text-xs text-white/50"><%= user.email %></p>
           </div>
         </div>
       </div>
     </header>
 
-    <main class="flex-1 p-6">
-      <div class="mb-8">
-        <h1 class="text-2xl sm:text-3xl font-bold text-white">Welcome back, <%= user.name.split(' ')[0] %>!</h1>
-        <p class="text-white/50 mt-1">Here's what's happening with your account.</p>
+    <main class="flex-1 p-6 sm:p-8">
+      <div class="mb-10">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Welcome back, <%= user.name.split(' ')[0] %>!</h1>
+        <p class="text-white/50 mt-2 text-base">Here's what's happening with your account today.</p>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div class="glass-card stat-card rounded-2xl p-5 transition-all duration-300">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-white/50 text-sm font-medium">Total Logins</p>
-              <p class="text-2xl font-bold mt-1">—</p>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center">
-              <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
-            </div>
-          </div>
-        </div>
-        <div class="glass-card stat-card rounded-2xl p-5 transition-all duration-300">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-white/50 text-sm font-medium">Account Created</p>
-              <p class="text-lg font-bold mt-1"><%= new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></p>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
-              <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
+        <div class="scene-3d">
+          <div class="stat-card-3d glass-card rounded-2xl p-6 border border-indigo-500/20">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-white/50 text-sm font-medium">Total Logins</p>
+                <p class="text-2xl font-bold mt-1">—</p>
+                <span class="inline-block mt-2 text-xs text-indigo-400 font-medium">+0% this week</span>
+              </div>
+              <div class="w-14 h-14 rounded-2xl bg-indigo-500/20 flex items-center justify-center icon-glow text-indigo-400">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+              </div>
             </div>
           </div>
         </div>
-        <div class="glass-card stat-card rounded-2xl p-5 transition-all duration-300">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-white/50 text-sm font-medium">Active Sessions</p>
-              <p class="text-2xl font-bold mt-1">1</p>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-              <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <div class="scene-3d">
+          <div class="stat-card-3d glass-card rounded-2xl p-6 border border-purple-500/20">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-white/50 text-sm font-medium">Account Created</p>
+                <p class="text-lg font-bold mt-1"><%= new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></p>
+                <span class="inline-block mt-2 text-xs text-purple-400 font-medium">Member</span>
+              </div>
+              <div class="w-14 h-14 rounded-2xl bg-purple-500/20 flex items-center justify-center icon-glow text-purple-400">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              </div>
             </div>
           </div>
         </div>
-        <div class="glass-card stat-card rounded-2xl p-5 transition-all duration-300">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-white/50 text-sm font-medium">Profile Completion</p>
-              <p class="text-2xl font-bold mt-1">100%</p>
+        <div class="scene-3d">
+          <div class="stat-card-3d glass-card rounded-2xl p-6 border border-emerald-500/20">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-white/50 text-sm font-medium">Active Sessions</p>
+                <p class="text-2xl font-bold mt-1">1</p>
+                <span class="inline-block mt-2 text-xs text-emerald-400 font-medium">Active now</span>
+              </div>
+              <div class="w-14 h-14 rounded-2xl bg-emerald-500/20 flex items-center justify-center icon-glow text-emerald-400">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
             </div>
-            <div class="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center">
-              <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+          </div>
+        </div>
+        <div class="scene-3d">
+          <div class="stat-card-3d glass-card rounded-2xl p-6 border border-amber-500/20">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-white/50 text-sm font-medium">Profile Completion</p>
+                <p class="text-2xl font-bold mt-1">100%</p>
+                <span class="inline-block mt-2 text-xs text-amber-400 font-medium">Complete</span>
+              </div>
+              <div class="w-14 h-14 rounded-2xl bg-amber-500/20 flex items-center justify-center icon-glow text-amber-400">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 glass-card rounded-2xl p-6">
-          <h2 class="text-lg font-semibold text-white mb-4">Recent Activity</h2>
-          <div class="space-y-1">
-            <div class="activity-item flex items-center gap-4 p-3 rounded-xl transition-colors">
-              <div class="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
-                <svg class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+        <div class="lg:col-span-2 glass-card rounded-2xl p-6 border border-white/5">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-bold text-white">Recent Activity</h2>
+            <a href="#" class="text-sm text-indigo-400 hover:text-indigo-300 font-medium transition-colors">View all</a>
+          </div>
+          <div class="space-y-2">
+            <div class="activity-item flex items-center gap-4 p-4 rounded-xl border border-white/5">
+              <div class="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
+                <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-white">Successful login</p>
+                <p class="text-sm font-semibold text-white">Successful login</p>
                 <p class="text-xs text-white/50">You signed in to your account</p>
               </div>
-              <span class="text-xs text-white/40 flex-shrink-0">Just now</span>
+              <span class="text-xs text-white/40 flex-shrink-0 px-2 py-1 rounded-lg bg-white/5">Just now</span>
             </div>
-            <div class="activity-item flex items-center gap-4 p-3 rounded-xl transition-colors">
-              <div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
-                <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <div class="activity-item flex items-center gap-4 p-4 rounded-xl border border-white/5">
+              <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-white">Account verified</p>
+                <p class="text-sm font-semibold text-white">Account verified</p>
                 <p class="text-xs text-white/50"><%= user.googleId ? 'Connected via Google' : 'Email confirmed' %></p>
               </div>
-              <span class="text-xs text-white/40 flex-shrink-0"><%= new Date(user.createdAt).toLocaleDateString() %></span>
+              <span class="text-xs text-white/40 flex-shrink-0 px-2 py-1 rounded-lg bg-white/5"><%= new Date(user.createdAt).toLocaleDateString() %></span>
             </div>
-            <div class="activity-item flex items-center gap-4 p-3 rounded-xl transition-colors">
-              <div class="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+            <div class="activity-item flex items-center gap-4 p-4 rounded-xl border border-white/5">
+              <div class="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-white">Account created</p>
-                <p class="text-xs text-white/50">You joined App</p>
+                <p class="text-sm font-semibold text-white">Account created</p>
+                <p class="text-xs text-white/50">You joined BreachLens</p>
               </div>
-              <span class="text-xs text-white/40 flex-shrink-0"><%= new Date(user.createdAt).toLocaleDateString() %></span>
+              <span class="text-xs text-white/40 flex-shrink-0 px-2 py-1 rounded-lg bg-white/5"><%= new Date(user.createdAt).toLocaleDateString() %></span>
             </div>
           </div>
         </div>
 
-        <div class="glass-card rounded-2xl p-6">
-          <h2 class="text-lg font-semibold text-white mb-4">Account Details</h2>
-          <dl class="space-y-4">
-            <div>
-              <dt class="text-xs text-white/50 uppercase tracking-wider">Name</dt>
-              <dd class="text-white font-medium mt-0.5"><%= user.name %></dd>
+        <div class="glass-card rounded-2xl p-6 border border-white/5">
+          <h2 class="text-xl font-bold text-white mb-6">Account Details</h2>
+          <dl class="space-y-5">
+            <div class="p-4 rounded-xl bg-white/5 border border-white/5">
+              <dt class="text-xs text-white/50 uppercase tracking-wider font-semibold">Name</dt>
+              <dd class="text-white font-semibold mt-1"><%= user.name %></dd>
             </div>
-            <div>
-              <dt class="text-xs text-white/50 uppercase tracking-wider">Email</dt>
-              <dd class="text-white font-medium mt-0.5 break-all"><%= user.email %></dd>
+            <div class="p-4 rounded-xl bg-white/5 border border-white/5">
+              <dt class="text-xs text-white/50 uppercase tracking-wider font-semibold">Email</dt>
+              <dd class="text-white font-semibold mt-1 break-all"><%= user.email %></dd>
             </div>
-            <div>
-              <dt class="text-xs text-white/50 uppercase tracking-wider">Login Method</dt>
-              <dd class="text-white font-medium mt-0.5"><%= user.googleId ? 'Google' : 'Email & Password' %></dd>
+            <div class="p-4 rounded-xl bg-white/5 border border-white/5">
+              <dt class="text-xs text-white/50 uppercase tracking-wider font-semibold">Login Method</dt>
+              <dd class="text-white font-semibold mt-1"><%= user.googleId ? 'Google' : 'Email & Password' %></dd>
             </div>
-            <div>
-              <dt class="text-xs text-white/50 uppercase tracking-wider">Member Since</dt>
-              <dd class="text-white font-medium mt-0.5"><%= new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) %></dd>
+            <div class="p-4 rounded-xl bg-white/5 border border-white/5">
+              <dt class="text-xs text-white/50 uppercase tracking-wider font-semibold">Member Since</dt>
+              <dd class="text-white font-semibold mt-1"><%= new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) %></dd>
             </div>
           </dl>
         </div>
@@ -205,12 +279,11 @@
     </main>
   </div>
 
-  <div id="sidebarOverlay" class="fixed inset-0 bg-black/50 z-30 opacity-0 pointer-events-none transition-opacity lg:hidden"></div>
+  <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 opacity-0 pointer-events-none transition-opacity lg:hidden"></div>
 
   <script>
     (function() {
       var sidebar = document.getElementById('sidebar');
-      var mainArea = document.getElementById('mainArea');
       var overlay = document.getElementById('sidebarOverlay');
       var toggle = document.getElementById('sidebarToggle');
 
@@ -232,9 +305,7 @@
       if (overlay) overlay.addEventListener('click', closeSidebar);
 
       window.addEventListener('resize', function() {
-        if (window.innerWidth >= 1024) {
-          closeSidebar();
-        }
+        if (window.innerWidth >= 1024) closeSidebar();
       });
     })();
   </script>
