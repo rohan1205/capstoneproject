@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>BreachLens AI Dashboard</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body{
+background:#05030d;
+color:white;
+font-family:system-ui;
+}
+
+.card{
+background:rgba(255,255,255,.05);
+border:1px solid rgba(255,255,255,.1);
+backdrop-filter:blur(20px);
+}
+
+.input{
+background:rgba(0,0,0,.4);
+border:1px solid rgba(255,255,255,.1);
+padding:12px;
+border-radius:8px;
+width:100%;
+}
+
+.resultBox{
+background:#221c4b;
+padding:14px;
+border-radius:8px;
+font-weight:500;
+}
+</style>
+
+</head>
+
+<body class="min-h-screen p-10">
+
+<div class="max-w-6xl mx-auto">
+
+<h1 class="text-3xl font-bold mb-2">
+BreachLens AI Dashboard
+</h1>
+
+<div class="mb-8 text-white/60">
+Welcome <%= user.name %> • <%= user.email %>
+</div>
+
+<div class="grid grid-cols-2 gap-6 mb-10">
+
+<div class="card p-6 rounded-xl">
+
+<h2 class="text-xl font-bold mb-4">AI Breach Prediction</h2>
+
+<form id="predictForm" class="grid grid-cols-2 gap-4">
+
+<input class="input" name="industry" placeholder="Industry" required>
+
+<input class="input" name="recordsAffected" type="number" placeholder="Records Affected" required>
+
+<input class="input" name="attackVector" placeholder="Attack Vector" required>
+
+<input class="input" name="detectionTime" type="number" placeholder="Detection Time (hours)" required>
+
+<button
+class="col-span-2 bg-indigo-600 hover:bg-indigo-700 p-3 rounded font-semibold mt-2">
+Predict Severity </button>
+
+</form>
+
+</div>
+
+<div class="card p-6 rounded-xl">
+
+<h2 class="text-xl font-bold mb-4">Prediction Result</h2>
+
+<div class="space-y-4">
+
+<div id="severityResult" class="resultBox">
+Severity: -
+</div>
+
+<div id="riskResult" class="resultBox">
+Risk Score: -
+</div>
+
+<div id="impactResult" class="resultBox">
+Financial Impact: -
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="card p-6 rounded-xl">
+
+<h2 class="text-xl font-bold mb-4">
+Recent Breach Predictions
+</h2>
+
+<div class="overflow-x-auto">
+
+<table class="w-full text-left">
+
+<thead class="border-b border-white/10 text-white/60">
+<tr>
+<th class="p-2">Industry</th>
+<th class="p-2">Records</th>
+<th class="p-2">Attack</th>
+<th class="p-2">Severity</th>
+<th class="p-2">Risk Score</th>
+<th class="p-2">Financial Impact</th>
+</tr>
+</thead>
+
+<tbody id="breachTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<a href="/logout" class="inline-block mt-8 text-red-400">
+Logout
+</a>
+
+</div>
+
+<script>
+
+async function loadBreaches(){
+
+const res = await fetch('/api/history');
+const breaches = await res.json();
+
+const table = document.getElementById("breachTable");
+table.innerHTML = "";
+
+breaches.forEach(breach=>{
+
+table.innerHTML += `
+<tr class="border-b border-white/5">
+<td class="p-2">${breach.industry}</td>
+<td class="p-2">${breach.recordsAffected}</td>
+<td class="p-2">${breach.attackVector}</td>
+<td class="p-2 font-semibold">${breach.severity}</td>
+<td class="p-2">${breach.riskScore}</td>
+<td class="p-2">$${breach.financialImpact}</td>
+</tr>
+`;
+
+});
+
+}
+
+
+document
+.getElementById("predictForm")
+.addEventListener("submit", async function(e){
+
+e.preventDefault();
+
+const form = new FormData(this);
+
+const payload = {
+industry: form.get("industry"),
+recordsAffected: Number(form.get("recordsAffected")),
+attackVector: form.get("attackVector"),
+detectionTime: Number(form.get("detectionTime"))
+};
+
+const res = await fetch("/api/predict",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(payload)
+});
+
+const result = await res.json();
+
+document.getElementById("severityResult").innerText =
+`Severity: ${result.severity}`;
+
+document.getElementById("riskResult").innerText =
+`Risk Score: ${result.riskScore}`;
+
+document.getElementById("impactResult").innerText =
+`Financial Impact: $${result.financialImpact}`;
+
+this.reset();
+
+loadBreaches();
+
+});
+
+
+loadBreaches();
+
+</script>
+
+</body>
+</html>
