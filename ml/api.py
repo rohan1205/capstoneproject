@@ -17,7 +17,7 @@ def predict(data: dict):
 
     severity = prediction[0]
 
-    # simple impact score
+    # simple impact score 233
     impact = records * 5
 
     return {
