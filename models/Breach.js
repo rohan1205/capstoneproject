@@ -33,6 +33,25 @@ type: Number
 financialImpact: {
 type: Number
 },
+analysisInput: {
+industry: { type: String, default: "" },
+attackVector: { type: String, default: "" },
+detectionTime: { type: Number, default: 0 },
+recordsAffected: { type: Number, required: true }
+},
+modelVersion: {
+type: String,
+default: "v1"
+},
+confidence: {
+type: Number,
+min: 0,
+max: 1
+},
+analysisNotes: {
+type: String,
+default: ""
+},
 
 user: {
 type: mongoose.Schema.Types.ObjectId,

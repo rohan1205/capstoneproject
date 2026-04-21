@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Settings — BreachLens</title>
+  <meta name="description" content="Configure your BreachLens application settings, notifications, and API preferences."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/style.css"/>
+</head>
+<body class="grid-bg">
+<div class="scanline"></div>
+<div style="position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0">
+  <div class="orb orb-violet" style="width:440px;height:440px;top:-15%;left:-10%;opacity:.15;"></div>
+  <div class="orb orb-indigo" style="width:320px;height:320px;bottom:-8%;right:-5%;opacity:.12;animation-delay:-6s;"></div>
+</div>
+
+<div id="toast-container"></div>
+
+<!-- ═══ SIDEBAR ═══ -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">
+      <svg width="20" height="20" fill="none" stroke="#fff" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+    </div>
+    <div><div class="brand">BreachLens</div><div class="brand-sub">AI Security</div></div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="sidebar-section-label">Main</div>
+    <a href="/dashboard" class="nav-link"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10-3a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1v-7z"/></svg><span class="label">Dashboard</span></a>
+    <a href="/history" class="nav-link"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg><span class="label">History</span></a>
+    <a href="/analytics" class="nav-link"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg><span class="label">Analytics</span></a>
+    <div class="nav-divider"></div>
+    <div class="sidebar-section-label">Account</div>
+    <a href="/profile" class="nav-link"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg><span class="label">Profile</span></a>
+    <a href="/settings" class="nav-link active"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3" stroke-width="1.8"/></svg><span class="label">Settings</span></a>
+    <div class="nav-divider"></div>
+    <a href="/logout" class="nav-link danger"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg><span class="label">Sign Out</span></a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="avatar-circle"><%= user.name.slice(0,2).toUpperCase() %></div>
+      <div style="overflow:hidden;min-width:0"><div class="uname"><%= user.name %></div><div class="uemail"><%= user.email %></div></div>
+    </div>
+    <div style="margin-top:8px;padding:0 10px;"><div class="role-badge"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>Analyst</div></div>
+  </div>
+</nav>
+
+<!-- ═══ MAIN ═══ -->
+<div id="main">
+  <div id="topbar">
+    <div style="display:flex;align-items:center;gap:14px">
+      <button class="toggle-btn" id="sidebarToggle" aria-label="Toggle sidebar">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div>
+        <div style="font-size:.7rem;color:var(--text-faint);font-weight:500;letter-spacing:.04em;text-transform:uppercase;">Account</div>
+        <div class="page-title" style="font-size:1.05rem;">Settings</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div id="clock"></div>
+      <div class="avatar-circle" style="width:36px;height:36px;font-size:.73rem;flex-shrink:0"><%= user.name.slice(0,2).toUpperCase() %></div>
+    </div>
+  </div>
+
+  <div class="page-content" style="max-width:860px;">
+
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="alert-success" style="margin-bottom:20px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34d399" style="flex-shrink:0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span><%= success %></span></div>
+    <% } %>
+
+    <!-- Settings tabs -->
+    <div style="display:flex;gap:4px;margin-bottom:22px;border-bottom:1px solid var(--border);padding-bottom:0;">
+      <button class="stab active" data-tab="general">General</button>
+      <button class="stab" data-tab="notifications">Notifications</button>
+      <button class="stab" data-tab="api">API & Integrations</button>
+      <button class="stab" data-tab="security">Security</button>
+    </div>
+
+    <!-- ── GENERAL ── -->
+    <div class="stab-panel" id="tab-general">
+      <div class="glass fade-in" style="border-radius:var(--radius);padding:28px;margin-bottom:20px;">
+        <div class="section-title">
+          <div class="section-title-icon"><svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg></div>
+          General Preferences
+        </div>
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-label">Default Industry</div><div class="setting-desc">Pre-fill the industry field when creating new predictions</div></div>
+            <select class="setting-select" id="defIndustry">
+              <option value="">None</option>
+              <option value="healthcare">Healthcare</option>
+              <option value="finance">Finance</option>
+              <option value="technology">Technology</option>
+              <option value="retail">Retail</option>
+              <option value="government">Government</option>
+              <option value="education">Education</option>
+              <option value="manufacturing">Manufacturing</option>
+              <option value="energy">Energy</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-label">Default Geography</div><div class="setting-desc">Pre-fill the geography field in predictions</div></div>
+            <select class="setting-select" id="defGeo">
+              <option value="">None</option>
+              <option value="north_america">North America</option>
+              <option value="europe">Europe</option>
+              <option value="asia_pacific">Asia Pacific</option>
+              <option value="middle_east">Middle East</option>
+              <option value="latin_america">Latin America</option>
+              <option value="africa">Africa</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-label">Auto-refresh Dashboard</div><div class="setting-desc">Automatically refresh prediction history every 60 seconds</div></div>
+            <label class="toggle-switch"><input type="checkbox" id="autoRefresh" onchange="savePref('autoRefresh',this.checked)"><span class="toggle-knob"></span></label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-label">Show Financial Exposure</div><div class="setting-desc">Display USD financial impact estimates on the dashboard</div></div>
+            <label class="toggle-switch"><input type="checkbox" id="showFinancial" checked onchange="savePref('showFinancial',this.checked)"><span class="toggle-knob"></span></label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-label">Compact Table View</div><div class="setting-desc">Show more rows with reduced row height in history table</div></div>
+            <label class="toggle-switch"><input type="checkbox" id="compactTable" onchange="savePref('compactTable',this.checked)"><span class="toggle-knob"></span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── NOTIFICATIONS ── -->
+    <div class="stab-panel" id="tab-notifications" style="display:none;">
+      <div class="glass fade-in" style="border-radius:var(--radius);padding:28px;margin-bottom:20px;">
+        <div class="section-title">
+          <div class="section-title-icon"><svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg></div>
+          Notification Preferences
+        </div>
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-label">Critical Severity Alerts</div><div class="setting-desc">Show a prominent toast alert when a Critical breach is detected</div></div>
+            <label class="toggle-switch"><input type="checkbox" id="alertCritical" checked onchange="savePref('alertCritical',this.checked)"><span class="toggle-knob"></span></label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-label">High Severity Alerts</div><div class="setting-desc">Notify when breach severity is High or above</div></div>
+            <label class="toggle-switch"><input type="checkbox" id="alertHigh" checked onchange="savePref('alertHigh',this.checked)"><span class="toggle-knob"></span></label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-label">Prediction Complete Notification</div><div class="setting-desc">Show success toast after every prediction completes</div></div>
+            <label class="toggle-switch"><input type="checkbox" id="alertSuccess" checked onchange="savePref('alertSuccess',this.checked)"><span class="toggle-knob"></span></label>
+          </div>
+          <div class="setting-row">
+            <div class="setting-info"><div class="setting-label">ML API Status Alerts</div><div class="setting-desc">Warn if the ML microservice is unreachable</div></div>
+            <label class="toggle-switch"><input type="checkbox" id="alertMlApi" checked onchange="savePref('alertMlApi',this.checked)"><span class="toggle-knob"></span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── API ── -->
+    <div class="stab-panel" id="tab-api" style="display:none;">
+      <div class="glass fade-in" style="border-radius:var(--radius);padding:28px;margin-bottom:20px;">
+        <div class="section-title">
+          <div class="section-title-icon"><svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg></div>
+          API & Integrations
+        </div>
+        <div style="display:flex;flex-direction:column;gap:20px;">
+          <!-- ML API Status -->
+          <div style="padding:18px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <div style="font-weight:700;font-size:.9rem;">ML Microservice (FastAPI)</div>
+              <div id="mlStatus" style="display:flex;align-items:center;gap:6px;font-size:.75rem;font-weight:600;color:var(--text-faint);">
+                <div style="width:7px;height:7px;border-radius:50%;background:var(--text-faint);"></div>Checking…
+              </div>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--indigo-light);background:rgba(99,102,241,0.07);padding:10px 14px;border-radius:8px;margin-bottom:12px;">
+              http://127.0.0.1:8001
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;" id="mlMeta">
+              <div style="font-size:.75rem;color:var(--text-faint);">Version: <span style="color:var(--text-muted);" id="mlVer">—</span></div>
+              <div style="font-size:.75rem;color:var(--text-faint);">Accuracy: <span style="color:var(--text-muted);" id="mlAcc">—</span></div>
+              <div style="font-size:.75rem;color:var(--text-faint);">Dataset: <span style="color:var(--text-muted);" id="mlData">—</span></div>
+            </div>
+            <button onclick="checkMlApi()" class="ghost-btn" style="margin-top:14px;padding:8px 16px;font-size:.8rem;font-weight:600;display:flex;align-items:center;gap:6px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 4v5h5M20 20v-5h-5"/><path d="M4 9a9 9 0 0114.24-3.24M20 15A9 9 0 015.76 18.24"/></svg>
+              Ping API
+            </button>
+          </div>
+
+          <!-- Endpoints reference -->
+          <div style="padding:18px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);">
+            <div style="font-weight:700;font-size:.9rem;margin-bottom:14px;">Available Endpoints</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <% [
+                {method:'POST',path:'/predict',desc:'Run breach severity prediction'},
+                {method:'GET',path:'/api/history',desc:'Fetch user prediction history'},
+                {method:'DELETE',path:'/api/history/clear',desc:'Clear user prediction history'},
+                {method:'GET',path:'/health',desc:'Node.js server health check'},
+                {method:'GET',path:'http://127.0.0.1:8001/health',desc:'ML API health check'},
+                {method:'GET',path:'http://127.0.0.1:8001/model-info',desc:'ML model metadata'},
+              ].forEach(ep => { %>
+              <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;padding:2px 7px;border-radius:4px;background:<%= ep.method==='GET'?'rgba(52,211,153,0.12)':'rgba(99,102,241,0.12)' %>;color:<%= ep.method==='GET'?'#34d399':ep.method==='DELETE'?'#f87171':'#818cf8' %>;white-space:nowrap;"><%= ep.method %></span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text-muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%= ep.path %></span>
+                <span style="font-size:.72rem;color:var(--text-faint);white-space:nowrap;"><%= ep.desc %></span>
+              </div>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SECURITY ── -->
+    <div class="stab-panel" id="tab-security" style="display:none;">
+      <div class="glass fade-in" style="border-radius:var(--radius);padding:28px;margin-bottom:20px;">
+        <div class="section-title">
+          <div class="section-title-icon"><svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>
+          Security Overview
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+
+          <div class="sec-item ok">
+            <div class="sec-dot ok"></div>
+            <div class="sec-body">
+              <div class="sec-title">Session Authentication</div>
+              <div class="sec-desc">You are authenticated via an encrypted, HTTP-only session cookie with a 24-hour TTL.</div>
+            </div>
+            <span class="sec-badge ok">Active</span>
+          </div>
+
+          <div class="sec-item ok">
+            <div class="sec-dot ok"></div>
+            <div class="sec-body">
+              <div class="sec-title">Password Hashing</div>
+              <div class="sec-desc">Your password is stored using bcrypt with a salt factor of 10 — never in plain text.</div>
+            </div>
+            <span class="sec-badge ok">Enabled</span>
+          </div>
+
+          <div class="sec-item ok">
+            <div class="sec-dot ok"></div>
+            <div class="sec-body">
+              <div class="sec-title">Rate Limiting</div>
+              <div class="sec-desc">API endpoints are protected with rate limiting (2,000 req/15 min in dev mode).</div>
+            </div>
+            <span class="sec-badge ok">Active</span>
+          </div>
+
+          <div class="sec-item ok">
+            <div class="sec-dot ok"></div>
+            <div class="sec-body">
+              <div class="sec-title">HTTP Security Headers</div>
+              <div class="sec-desc">Helmet.js is configured with XSS, HSTS, CSP, and content-type protection headers.</div>
+            </div>
+            <span class="sec-badge ok">Enabled</span>
+          </div>
+
+          <div class="sec-item warn">
+            <div class="sec-dot warn"></div>
+            <div class="sec-body">
+              <div class="sec-title">Two-Factor Authentication</div>
+              <div class="sec-desc">2FA is not yet configured. For enhanced security, enable TOTP-based 2FA.</div>
+            </div>
+            <span class="sec-badge warn">Not Set</span>
+          </div>
+
+          <div class="sec-item warn">
+            <div class="sec-dot warn"></div>
+            <div class="sec-body">
+              <div class="sec-title">HTTPS / TLS</div>
+              <div class="sec-desc">Running on HTTP in development. Configure Nginx + SSL before deploying to production.</div>
+            </div>
+            <span class="sec-badge warn">Dev Only</span>
+          </div>
+
+        </div>
+
+        <!-- Active Session Info -->
+        <div style="margin-top:24px;padding:18px;border-radius:12px;background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.15);">
+          <div style="font-weight:700;font-size:.88rem;margin-bottom:12px;color:var(--indigo-light);">Current Session</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:.78rem;">
+            <div style="color:var(--text-faint);">User: <span style="color:var(--text-muted);font-weight:600;"><%= user.email %></span></div>
+            <div style="color:var(--text-faint);">Auth method: <span style="color:var(--text-muted);font-weight:600;"><%= user.googleId ? 'Google OAuth' : 'Email / Password' %></span></div>
+            <div style="color:var(--text-faint);">Session store: <span style="color:var(--text-muted);font-weight:600;">MongoDB (connect-mongo)</span></div>
+            <div style="color:var(--text-faint);">Cookie TTL: <span style="color:var(--text-muted);font-weight:600;">24 hours</span></div>
+          </div>
+          <a href="/logout" style="margin-top:14px;display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:8px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.25);color:var(--red);font-size:.82rem;font-weight:600;text-decoration:none;transition:all var(--tr);">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            Sign out of all sessions
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page-content -->
+</div><!-- /main -->
+
+<style>
+  .page-content{position:relative;z-index:1;}
+
+  /* Tabs */
+  .stab{padding:10px 18px;border:none;background:none;color:var(--text-muted);font-family:'Inter',sans-serif;font-size:.875rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:all var(--tr);margin-bottom:-1px;border-radius:6px 6px 0 0;}
+  .stab:hover{color:var(--text);background:rgba(255,255,255,0.04);}
+  .stab.active{color:var(--indigo-light);border-bottom-color:var(--indigo);font-weight:700;}
+
+  /* Setting rows */
+  .setting-row{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+  .setting-row:last-child{border-bottom:none;padding-bottom:0;}
+  .setting-info{flex:1;}
+  .setting-label{font-size:.88rem;font-weight:600;color:var(--text);margin-bottom:2px;}
+  .setting-desc{font-size:.76rem;color:var(--text-faint);line-height:1.5;}
+  .setting-select{padding:7px 12px;border-radius:8px;background:#0f172a;border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:.82rem;outline:none;cursor:pointer;transition:all var(--tr);min-width:150px;color-scheme:dark;}
+  .setting-select option{background:#0f172a;color:#f8fafc;}
+  .setting-select:focus{border-color:rgba(99,102,241,0.5);box-shadow:0 0 0 2px rgba(99,102,241,0.12);}
+
+  /* Toggle switch */
+  .toggle-switch{position:relative;display:inline-flex;align-items:center;cursor:pointer;flex-shrink:0;}
+  .toggle-switch input{opacity:0;width:0;height:0;position:absolute;}
+  .toggle-knob{width:46px;height:26px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.12);border-radius:99px;transition:all 0.3s ease;flex-shrink:0;position:relative;}
+  .toggle-knob::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.5);transition:all 0.3s cubic-bezier(0.23,1,0.32,1);box-shadow:0 2px 6px rgba(0,0,0,0.3);}
+  .toggle-switch input:checked + .toggle-knob{background:linear-gradient(135deg,#4f46e5,#7c3aed);border-color:rgba(99,102,241,0.5);box-shadow:0 0 12px rgba(99,102,241,0.35);}
+  .toggle-switch input:checked + .toggle-knob::after{left:calc(100% - 21px);background:#fff;}
+
+  /* Security items */
+  .sec-item{display:flex;align-items:flex-start;gap:14px;padding:14px 16px;border-radius:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);transition:all var(--tr);}
+  .sec-item:hover{background:rgba(255,255,255,0.04);}
+  .sec-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+  .sec-dot.ok{background:#34d399;box-shadow:0 0 8px rgba(52,211,153,0.4);}
+  .sec-dot.warn{background:#fbbf24;box-shadow:0 0 8px rgba(251,191,36,0.3);}
+  .sec-body{flex:1;}
+  .sec-title{font-size:.875rem;font-weight:600;color:var(--text);margin-bottom:3px;}
+  .sec-desc{font-size:.76rem;color:var(--text-faint);line-height:1.5;}
+  .sec-badge{padding:3px 10px;border-radius:99px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;}
+  .sec-badge.ok{background:rgba(52,211,153,0.1);color:#34d399;border:1px solid rgba(52,211,153,0.2);}
+  .sec-badge.warn{background:rgba(251,191,36,0.1);color:#fbbf24;border:1px solid rgba(251,191,36,0.2);}
+</style>
+
+<script>
+  document.getElementById('sidebarToggle').addEventListener('click',()=>{
+    document.getElementById('sidebar').classList.toggle('collapsed');
+    document.getElementById('main').classList.toggle('expanded');
+  });
+  function tick(){document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});}
+  tick(); setInterval(tick,1000);
+
+  // Tabs
+  document.querySelectorAll('.stab').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.stab').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.stab-panel').forEach(p=>p.style.display='none');
+      btn.classList.add('active');
+      document.getElementById('tab-'+btn.dataset.tab).style.display='block';
+      if(btn.dataset.tab==='api') checkMlApi();
+      loadPrefs();
+    });
+  });
+
+  // Preferences via localStorage
+  function savePref(key,val){
+    var prefs=JSON.parse(localStorage.getItem('bl_prefs')||'{}');
+    prefs[key]=val;
+    localStorage.setItem('bl_prefs',JSON.stringify(prefs));
+    showToast('Preference saved','success');
+  }
+  function loadPrefs(){
+    var prefs=JSON.parse(localStorage.getItem('bl_prefs')||'{}');
+    Object.keys(prefs).forEach(k=>{
+      var el=document.getElementById(k);
+      if(!el) return;
+      if(el.tagName==='INPUT'&&el.type==='checkbox') el.checked=prefs[k];
+      else if(el.tagName==='SELECT') el.value=prefs[k]||'';
+    });
+  }
+  ['defIndustry','defGeo'].forEach(id=>{
+    document.getElementById(id)?.addEventListener('change',function(){savePref(id,this.value);});
+  });
+  loadPrefs();
+
+  // ML API check
+  async function checkMlApi(){
+    var el=document.getElementById('mlStatus');
+    el.innerHTML='<div style="width:7px;height:7px;border-radius:50%;background:var(--text-faint);animation:statusPulse 1.5s ease-in-out infinite;"></div> Checking…';
+    try{
+      var r=await fetch('http://127.0.0.1:8001/health');
+      if(r.ok){
+        var d=await r.json();
+        el.innerHTML='<div style="width:7px;height:7px;border-radius:50%;background:#34d399;box-shadow:0 0 6px #34d399;"></div><span style="color:#34d399;">Online</span>';
+        // model info
+        var mi=await fetch('http://127.0.0.1:8001/model-info');
+        if(mi.ok){
+          var m=await mi.json();
+          document.getElementById('mlVer').textContent=m.model_version||'v2.0';
+          document.getElementById('mlAcc').textContent=m.classifier?.test_accuracy?Math.round(m.classifier.test_accuracy*100)+'%':'81%';
+          document.getElementById('mlData').textContent=m.dataset_size?m.dataset_size.toLocaleString()+' rows':'5,000 rows';
+        }
+      } else throw new Error();
+    }catch(err){
+      el.innerHTML='<div style="width:7px;height:7px;border-radius:50%;background:#f87171;box-shadow:0 0 6px rgba(248,113,113,0.4);"></div><span style="color:#f87171;">Offline</span>';
+    }
+  }
+  checkMlApi();
+
+  function showToast(msg,type){
+    var c=document.getElementById('toast-container');
+    var t=document.createElement('div');
+    t.className='toast toast-'+type;
+    var col=type==='success'?'#34d399':'#f87171';
+    var icon=type==='success'?'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10" stroke-width="2"/>':'<circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-width="2.2" d="M12 8v4m0 4h.01"/>';
+    t.innerHTML='<svg class="toast-icon" fill="none" stroke="'+col+'" viewBox="0 0 24 24">'+icon+'</svg><div class="toast-msg">'+msg+'</div>';
+    c.appendChild(t);
+    setTimeout(()=>{t.classList.add('hiding');setTimeout(()=>t.remove(),350);},3500);
+  }
+</script>
+</body>
+</html>

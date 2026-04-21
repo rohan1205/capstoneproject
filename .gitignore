@@ -1,4 +1,47 @@
-
+# Dependencies
 node_modules/
+dist/
+build/
+.npm
+.eslintcache
+
+# Environment
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.vault
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project Specific
 loginpage.zip
+ml_pid.txt
+ml/Data/
+# Uncomment below if you want to keep models out of git (recommended for large files)
+# *.pkl
+# ml/breach_*.pkl

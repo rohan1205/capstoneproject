@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile — BreachLens</title>
+  <meta name="description" content="Manage your BreachLens profile and account information."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/style.css"/>
+</head>
+<body class="grid-bg">
+<div class="scanline"></div>
+
+<!-- Ambient orbs -->
+<div style="position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0">
+  <div class="orb orb-indigo" style="width:500px;height:500px;top:-18%;right:-12%;opacity:.18;"></div>
+  <div class="orb orb-purple" style="width:380px;height:380px;bottom:-10%;left:-8%;opacity:.14;animation-delay:-5s;"></div>
+</div>
+
+<div id="toast-container"></div>
+
+<!-- ═══ SIDEBAR ═══ -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">
+      <svg width="20" height="20" fill="none" stroke="#fff" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+      </svg>
+    </div>
+    <div><div class="brand">BreachLens</div><div class="brand-sub">AI Security</div></div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="sidebar-section-label">Main</div>
+    <a href="/dashboard" class="nav-link"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v2a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10-3a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1v-7z"/></svg><span class="label">Dashboard</span></a>
+    <a href="/history" class="nav-link"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg><span class="label">History</span></a>
+    <a href="/analytics" class="nav-link"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg><span class="label">Analytics</span></a>
+    <div class="nav-divider"></div>
+    <div class="sidebar-section-label">Account</div>
+    <a href="/profile" class="nav-link active"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg><span class="label">Profile</span></a>
+    <a href="/settings" class="nav-link"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3" stroke-width="1.8"/></svg><span class="label">Settings</span></a>
+    <div class="nav-divider"></div>
+    <a href="/logout" class="nav-link danger"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg><span class="label">Sign Out</span></a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="avatar-circle" id="sidebarAvatar"><%= user.name.slice(0,2).toUpperCase() %></div>
+      <div style="overflow:hidden;min-width:0"><div class="uname"><%= user.name %></div><div class="uemail"><%= user.email %></div></div>
+    </div>
+    <div style="margin-top:8px;padding:0 10px;"><div class="role-badge"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>Analyst</div></div>
+  </div>
+</nav>
+
+<!-- ═══ MAIN ═══ -->
+<div id="main">
+  <!-- Topbar -->
+  <div id="topbar">
+    <div style="display:flex;align-items:center;gap:14px">
+      <button class="toggle-btn" id="sidebarToggle" aria-label="Toggle sidebar">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div>
+        <div style="font-size:.7rem;color:var(--text-faint);font-weight:500;letter-spacing:.04em;text-transform:uppercase;">Account</div>
+        <div class="page-title" style="font-size:1.05rem;">My Profile</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div id="clock" style="min-width:90px;text-align:right;"></div>
+      <div class="avatar-circle" style="width:36px;height:36px;font-size:.73rem;flex-shrink:0"><%= user.name.slice(0,2).toUpperCase() %></div>
+    </div>
+  </div>
+
+  <div class="page-content" style="max-width:900px;">
+
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="alert-success" style="margin-bottom:22px;" role="status">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34d399" style="flex-shrink:0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span><%= success %></span>
+      </div>
+    <% } %>
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="alert-error" style="margin-bottom:22px;" role="alert">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f87171" style="flex-shrink:0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+        <span><%= error %></span>
+      </div>
+    <% } %>
+
+    <!-- Profile header card -->
+    <div class="glass fade-in" style="border-radius:var(--radius);padding:32px;margin-bottom:22px;display:flex;align-items:center;gap:28px;flex-wrap:wrap;position:relative;overflow:hidden;">
+      <div class="holo-shimmer" style="position:absolute;inset:0;pointer-events:none;border-radius:inherit;"></div>
+      <!-- Avatar -->
+      <div style="position:relative;flex-shrink:0;z-index:1;">
+        <div style="width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#7c3aed,#9333ea);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:800;color:#fff;box-shadow:0 8px 32px rgba(99,102,241,0.45),0 0 0 4px rgba(255,255,255,0.07);" id="bigAvatar">
+          <%= user.name.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase() %>
+        </div>
+        <div style="position:absolute;bottom:4px;right:4px;width:18px;height:18px;border-radius:50%;background:#34d399;border:3px solid var(--bg);box-shadow:0 0 8px rgba(52,211,153,0.5);"></div>
+      </div>
+      <div style="z-index:1;flex:1;min-width:200px;">
+        <div style="font-size:1.6rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:4px;"><%= user.name %></div>
+        <div style="color:var(--text-muted);font-size:.9rem;margin-bottom:10px;"><%= user.email %></div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <div class="role-badge" style="font-size:.7rem;padding:4px 12px;">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            Analyst
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;padding:4px 12px;border-radius:99px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.18);font-size:.7rem;font-weight:600;color:#34d399;">
+            <div class="status-dot" style="width:6px;height:6px;"></div> Active
+          </div>
+          <% if (user.googleId) { %>
+          <div style="padding:4px 12px;border-radius:99px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);font-size:.7rem;font-weight:600;color:var(--text-muted);">
+            Google Account
+          </div>
+          <% } %>
+        </div>
+      </div>
+      <div style="z-index:1;text-align:right;min-width:150px;">
+        <div style="font-size:.65rem;color:var(--text-faint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;">Member since</div>
+        <div style="font-size:.9rem;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--indigo-light);">
+          <%= new Date(user.createdAt||Date.now()).toLocaleDateString('en-US',{month:'long',year:'numeric'}) %>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+      <!-- ── Update Profile Form ── -->
+      <div class="glass fade-in" style="border-radius:var(--radius);padding:28px;animation-delay:.1s;">
+        <div class="section-title">
+          <div class="section-title-icon"><svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg></div>
+          Update Profile
+        </div>
+
+        <form action="/profile/update" method="POST" id="profileForm">
+          <div style="display:flex;flex-direction:column;gap:18px;">
+
+            <div class="input-wrap">
+              <svg class="icon" width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              <input class="field-input" name="name" id="profileName" type="text" placeholder=" " value="<%= user.name %>" required minlength="2" maxlength="80" autocomplete="name"/>
+              <label for="profileName">Full Name</label>
+            </div>
+
+            <div class="input-wrap">
+              <svg class="icon" width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              <input class="field-input" name="email" id="profileEmail" type="email" placeholder=" " value="<%= user.email %>" required autocomplete="email"/>
+              <label for="profileEmail">Email Address</label>
+            </div>
+
+            <button type="submit" class="glow-btn" style="padding:13px;border-radius:var(--radius-sm);font-size:.9rem;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;">
+              <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ── Change Password Form ── -->
+      <div class="glass fade-in" style="border-radius:var(--radius);padding:28px;animation-delay:.15s;">
+        <div class="section-title">
+          <div class="section-title-icon"><svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg></div>
+          Change Password
+        </div>
+
+        <% if (user.googleId && !user.password) { %>
+          <div style="padding:20px;border-radius:12px;background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.2);text-align:center;">
+            <svg width="28" height="28" viewBox="0 0 48 48" style="margin:0 auto 10px;display:block;"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59a14.5 14.5 0 010-9.18l-7.98-6.19a24.06 24.06 0 000 21.56l7.98-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            <div style="font-size:.85rem;color:var(--text-muted);line-height:1.6;">You signed in with <strong style="color:var(--text)">Google</strong>.<br>Password is managed by your Google account.</div>
+          </div>
+        <% } else { %>
+        <form action="/profile/change-password" method="POST" id="pwForm">
+          <div style="display:flex;flex-direction:column;gap:16px;">
+
+            <div class="input-wrap" style="position:relative;">
+              <svg class="icon" width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              <input class="field-input" type="password" name="currentPassword" id="curPw" placeholder=" " required autocomplete="current-password" style="padding-right:48px;"/>
+              <label for="curPw">Current Password</label>
+              <button type="button" class="pw-eye" onclick="togglePw('curPw',this)" aria-label="Toggle">
+                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </button>
+            </div>
+
+            <div class="input-wrap" style="position:relative;">
+              <svg class="icon" width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              <input class="field-input" type="password" name="newPassword" id="newPw" placeholder=" " required minlength="8" autocomplete="new-password" style="padding-right:48px;"/>
+              <label for="newPw">New Password</label>
+              <button type="button" class="pw-eye" onclick="togglePw('newPw',this)" aria-label="Toggle">
+                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </button>
+            </div>
+
+            <div class="input-wrap" style="position:relative;">
+              <svg class="icon" width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              <input class="field-input" type="password" name="confirmPassword" id="confPw" placeholder=" " required autocomplete="new-password" style="padding-right:48px;"/>
+              <label for="confPw">Confirm New Password</label>
+              <button type="button" class="pw-eye" onclick="togglePw('confPw',this)" aria-label="Toggle">
+                <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </button>
+            </div>
+
+            <p id="pwMatchErr" style="font-size:.75rem;color:var(--red);display:none;margin-top:-8px;">Passwords do not match.</p>
+
+            <button type="submit" class="glow-btn" style="background:linear-gradient(135deg,#7c3aed,#9333ea);padding:13px;border-radius:var(--radius-sm);font-size:.9rem;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;">
+              <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+              Update Password
+            </button>
+          </div>
+        </form>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- ── Account Stats ── -->
+    <div class="glass fade-in" style="border-radius:var(--radius);padding:26px;margin-top:20px;animation-delay:.2s;">
+      <div class="section-title">
+        <div class="section-title-icon"><svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
+        Account Activity
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;">
+        <div style="padding:18px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);text-align:center;">
+          <div style="font-size:2rem;font-weight:800;color:#818cf8;letter-spacing:-0.03em;" id="statPredictions">—</div>
+          <div style="font-size:.76rem;color:var(--text-muted);margin-top:4px;font-weight:500;">Total Predictions</div>
+        </div>
+        <div style="padding:18px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);text-align:center;">
+          <div style="font-size:2rem;font-weight:800;color:#f87171;letter-spacing:-0.03em;" id="statCritical">—</div>
+          <div style="font-size:.76rem;color:var(--text-muted);margin-top:4px;font-weight:500;">High/Critical Breaches</div>
+        </div>
+        <div style="padding:18px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);text-align:center;">
+          <div style="font-size:2rem;font-weight:800;color:#fbbf24;letter-spacing:-0.03em;font-family:'JetBrains Mono',monospace;" id="statAvgRisk">—</div>
+          <div style="font-size:.76rem;color:var(--text-muted);margin-top:4px;font-weight:500;">Avg Risk Score</div>
+        </div>
+        <div style="padding:18px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);text-align:center;">
+          <div style="font-size:1.35rem;font-weight:800;color:#34d399;letter-spacing:-0.02em;font-family:'JetBrains Mono',monospace;" id="statExpImpact">—</div>
+          <div style="font-size:.76rem;color:var(--text-muted);margin-top:4px;font-weight:500;">Total Exposure Tracked</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="glass fade-in" style="border-radius:var(--radius);padding:26px;margin-top:20px;animation-delay:.25s;border-color:rgba(248,113,113,0.15);">
+      <div class="section-title" style="color:var(--red);">
+        <div class="section-title-icon" style="background:rgba(248,113,113,0.1);"><svg width="15" height="15" fill="none" stroke="#f87171" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></div>
+        Danger Zone
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+        <div>
+          <div style="font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:4px;">Delete All Prediction History</div>
+          <div style="font-size:.8rem;color:var(--text-faint);">Permanently removes all your breach analysis records. This cannot be undone.</div>
+        </div>
+        <button id="clearHistBtn" onclick="confirmClear()" style="padding:10px 20px;border-radius:var(--radius-xs);background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:var(--red);font-family:'Inter',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:all var(--tr);white-space:nowrap;">
+          Clear History
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /page-content -->
+</div><!-- /main -->
+
+<style>
+  .pw-eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:10px;border:none;background:none;color:rgba(248,250,252,0.3);cursor:pointer;transition:all var(--tr);display:flex;align-items:center;justify-content:center;}
+  .pw-eye:hover{background:rgba(255,255,255,0.06);color:#818cf8;}
+  .page-content{position:relative;z-index:1;}
+  @media(max-width:700px){div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important;}}
+</style>
+
+<script>
+  // Sidebar toggle
+  document.getElementById('sidebarToggle').addEventListener('click',()=>{
+    document.getElementById('sidebar').classList.toggle('collapsed');
+    document.getElementById('main').classList.toggle('expanded');
+  });
+  // Clock
+  function tick(){document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:true});}
+  tick(); setInterval(tick,1000);
+
+  // Password visibility
+  function togglePw(id, btn){
+    var el=document.getElementById(id);
+    el.type=el.type==='password'?'text':'password';
+    btn.style.color=el.type==='text'?'#818cf8':'rgba(248,250,252,0.3)';
+  }
+
+  // PW match validation
+  document.getElementById('pwForm')?.addEventListener('submit',function(e){
+    var np=document.getElementById('newPw').value;
+    var cp=document.getElementById('confPw').value;
+    var err=document.getElementById('pwMatchErr');
+    if(np!==cp){e.preventDefault();err.style.display='block';}
+    else err.style.display='none';
+  });
+
+  // Load stats
+  fetch('/api/history').then(r=>r.json()).then(data=>{
+    if(!Array.isArray(data)) return;
+    document.getElementById('statPredictions').textContent=data.length;
+    document.getElementById('statCritical').textContent=data.filter(d=>d.severity==='High'||d.severity==='Critical').length;
+    var avg=data.length?Math.round(data.reduce((s,d)=>s+(d.riskScore||0),0)/data.length):0;
+    document.getElementById('statAvgRisk').textContent=avg;
+    var tot=data.reduce((s,d)=>s+(d.financialImpact||0),0);
+    var fmt=tot>=1e9?'$'+(tot/1e9).toFixed(2)+'B':tot>=1e6?'$'+(tot/1e6).toFixed(2)+'M':tot>=1e3?'$'+(tot/1e3).toFixed(1)+'K':'$'+tot.toFixed(0);
+    document.getElementById('statExpImpact').textContent=fmt;
+  }).catch(()=>{});
+
+  // Confirm clear
+  function confirmClear(){
+    if(!confirm('Are you sure you want to permanently delete all your prediction history?\nThis cannot be undone.')) return;
+    fetch('/api/history/clear',{method:'DELETE'}).then(r=>r.json()).then(d=>{
+      showToast(d.message||'History cleared','success');
+    }).catch(()=>showToast('Failed to clear history','error'));
+  }
+
+  function showToast(msg, type){
+    var c=document.getElementById('toast-container');
+    var t=document.createElement('div');
+    t.className='toast toast-'+type;
+    var col=type==='success'?'#34d399':'#f87171';
+    var icon=type==='success'?'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10" stroke-width="2"/>':'<circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-linecap="round" stroke-width="2.2" d="M12 8v4m0 4h.01"/>';
+    t.innerHTML='<svg class="toast-icon" fill="none" stroke="'+col+'" viewBox="0 0 24 24">'+icon+'</svg><div class="toast-msg">'+msg+'</div>';
+    c.appendChild(t);
+    setTimeout(()=>{t.classList.add('hiding');setTimeout(()=>t.remove(),350);},4000);
+  }
+</script>
+</body>
+</html>

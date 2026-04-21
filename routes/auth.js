@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const User = require('../models/User');
-const breachRoutes = require('./breach');
+
+const GOOGLE_PLACEHOLDER_ID = 'your-google-client-id';
 // ──── Middleware ────
 function ensureGuest(req, res, next) {
   if (req.isAuthenticated()) return res.redirect('/dashboard');
@@ -14,19 +15,143 @@ function ensureAuth(req, res, next) {
   res.redirect('/login');
 }
 
+function redirectWithError(req, res, path, message) {
+  if (typeof req.flash === 'function') {
+    req.flash('error', message);
+    return res.redirect(path);
+  }
+  return res.redirect(`${path}?error=${encodeURIComponent(message)}`);
+}
+
+function validateSignupInput({ name, email, password, confirmPassword }) {
+  if (!name || !email || !password || !confirmPassword) {
+    return 'Please fill in all fields.';
+  }
+
+  const normalizedEmail = String(email).trim().toLowerCase();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(normalizedEmail)) {
+    return 'Please provide a valid email address.';
+  }
+
+  if (password.length < 8) {
+    return 'Password must be at least 8 characters.';
+  }
+
+  const hasUpper = /[A-Z]/.test(password);
+  const hasLower = /[a-z]/.test(password);
+  const hasNumber = /\d/.test(password);
+  if (!hasUpper || !hasLower || !hasNumber) {
+    return 'Password must include uppercase, lowercase, and a number.';
+  }
+
+  if (password !== confirmPassword) {
+    return 'Passwords do not match.';
+  }
+
+  return null;
+}
+
+function isGoogleOAuthConfigured() {
+  return Boolean(
+    process.env.GOOGLE_CLIENT_ID &&
+    process.env.GOOGLE_CLIENT_SECRET &&
+    process.env.GOOGLE_CALLBACK_URL &&
+    process.env.GOOGLE_CLIENT_ID !== GOOGLE_PLACEHOLDER_ID
+  );
+}
+
+function isGoogleStrategyRegistered() {
+  return typeof passport._strategy === 'function' && Boolean(passport._strategy('google'));
+}
+
 // ──── Pages ────
 router.get('/', (req, res) => res.redirect('/login'));
 
 router.get('/login', ensureGuest, (req, res) => {
-  res.render('login', { error: req.flash('error') });
+  const flashedError = typeof req.flash === 'function' ? req.flash('error') : [];
+  const queryError = req.query.error ? [req.query.error] : [];
+  const googleConfigured = isGoogleOAuthConfigured();
+  res.render('login', { error: flashedError.length ? flashedError : queryError, googleConfigured });
 });
 
 router.get('/signup', ensureGuest, (req, res) => {
-  res.render('signup', { error: req.flash('error') });
+  const flashedError = typeof req.flash === 'function' ? req.flash('error') : [];
+  const queryError = req.query.error ? [req.query.error] : [];
+  const googleConfigured = isGoogleOAuthConfigured();
+  res.render('signup', { error: flashedError.length ? flashedError : queryError, googleConfigured });
 });
 
 router.get('/dashboard', ensureAuth, (req, res) => {
   res.render('dashboard', { user: req.user });
+});
+
+router.get('/profile', ensureAuth, (req, res) => {
+  const success = req.query.success ? decodeURIComponent(req.query.success) : null;
+  const error   = req.query.error   ? decodeURIComponent(req.query.error)   : null;
+  res.render('profile', { user: req.user, success, error });
+});
+
+router.get('/settings', ensureAuth, (req, res) => {
+  const success = req.query.success ? decodeURIComponent(req.query.success) : null;
+  res.render('settings', { user: req.user, success });
+});
+
+router.get('/history', ensureAuth, (req, res) => {
+  res.render('history', { user: req.user });
+});
+
+router.get('/analytics', ensureAuth, (req, res) => {
+  res.render('analytics', { user: req.user });
+});
+
+// ──── Profile update ────
+router.post('/profile/update', ensureAuth, async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const { name, email } = req.body || {};
+    if (!name || !email) return res.redirect('/profile?error=' + encodeURIComponent('Name and email are required.'));
+    const norm = String(email).trim().toLowerCase();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(norm)) return res.redirect('/profile?error=' + encodeURIComponent('Invalid email address.'));
+    // Check email not taken by another user
+    const existing = await User.findOne({ email: norm, _id: { $ne: req.user._id } });
+    if (existing) return res.redirect('/profile?error=' + encodeURIComponent('Email already in use by another account.'));
+    await User.findByIdAndUpdate(req.user._id, { name: String(name).trim(), email: norm });
+    // Update session user
+    req.user.name  = String(name).trim();
+    req.user.email = norm;
+    res.redirect('/profile?success=' + encodeURIComponent('Profile updated successfully.'));
+  } catch (err) {
+    console.error('[POST /profile/update]', err);
+    res.redirect('/profile?error=' + encodeURIComponent('Something went wrong.'));
+  }
+});
+
+// ──── Password change ────
+router.post('/profile/change-password', ensureAuth, async (req, res) => {
+  try {
+    const User   = require('../models/User');
+    const bcrypt = require('bcryptjs');
+    const { currentPassword, newPassword, confirmPassword } = req.body || {};
+    if (!currentPassword || !newPassword || !confirmPassword)
+      return res.redirect('/profile?error=' + encodeURIComponent('All password fields are required.'));
+    if (newPassword !== confirmPassword)
+      return res.redirect('/profile?error=' + encodeURIComponent('New passwords do not match.'));
+    if (newPassword.length < 8)
+      return res.redirect('/profile?error=' + encodeURIComponent('New password must be at least 8 characters.'));
+    const user = await User.findById(req.user._id);
+    if (!user.password) return res.redirect('/profile?error=' + encodeURIComponent('Cannot set password for Google accounts.'));
+    const ok = await bcrypt.compare(currentPassword, user.password);
+    if (!ok) return res.redirect('/profile?error=' + encodeURIComponent('Current password is incorrect.'));
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    await user.save({ validateBeforeSave: false });
+    res.redirect('/profile?success=' + encodeURIComponent('Password changed successfully.'));
+  } catch (err) {
+    console.error('[POST /profile/change-password]', err);
+    res.redirect('/profile?error=' + encodeURIComponent('Something went wrong.'));
+  }
 });
 
 // ──── Local Auth ────
@@ -38,43 +163,44 @@ router.post('/login', ensureGuest, passport.authenticate('local', {
 
 router.post('/signup', ensureGuest, async (req, res) => {
   try {
-    const { name, email, password, confirmPassword } = req.body;
-
-    if (!name || !email || !password) {
-      req.flash('error', 'Please fill in all fields.');
-      return res.redirect('/signup');
-    }
-    if (password.length < 6) {
-      req.flash('error', 'Password must be at least 6 characters.');
-      return res.redirect('/signup');
-    }
-    if (password !== confirmPassword) {
-      req.flash('error', 'Passwords do not match.');
-      return res.redirect('/signup');
+    const { name, email, password, confirmPassword } = req.body || {};
+    const validationError = validateSignupInput({ name, email, password, confirmPassword });
+    if (validationError) {
+      return redirectWithError(req, res, '/signup', validationError);
     }
 
-    const existing = await User.findOne({ email: email.toLowerCase() });
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const existing = await User.findOne({ email: normalizedEmail });
     if (existing) {
-      req.flash('error', 'Email already registered.');
-      return res.redirect('/signup');
+      return redirectWithError(req, res, '/signup', 'Email already registered.');
     }
 
-    await User.create({ name, email, password });
-    req.flash('error', 'Account created! Please log in.');
-    res.redirect('/login');
+    await User.create({ name: String(name).trim(), email: normalizedEmail, password });
+    return redirectWithError(req, res, '/login', 'Account created! Please log in.');
   } catch (err) {
     console.error(err);
-    req.flash('error', 'Something went wrong.');
-    res.redirect('/signup');
+    return redirectWithError(req, res, '/signup', 'Something went wrong.');
   }
 });
 
 // ──── Google Auth ────
 router.get('/auth/google',
+  (req, res, next) => {
+    if (!isGoogleOAuthConfigured() || !isGoogleStrategyRegistered()) {
+      return redirectWithError(req, res, '/login', 'Google sign-in is not configured. Please contact the administrator.');
+    }
+    return next();
+  },
   passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 
 router.get('/auth/google/callback',
+  (req, res, next) => {
+    if (!isGoogleOAuthConfigured() || !isGoogleStrategyRegistered()) {
+      return redirectWithError(req, res, '/login', 'Google sign-in is not configured. Please contact the administrator.');
+    }
+    return next();
+  },
   passport.authenticate('google', {
     successRedirect: '/dashboard',
     failureRedirect: '/login',
@@ -91,3 +217,8 @@ router.get('/logout', (req, res, next) => {
 });
 
 module.exports = router;
+module.exports.ensureGuest = ensureGuest;
+module.exports.ensureAuth = ensureAuth;
+module.exports.validateSignupInput = validateSignupInput;
+module.exports.isGoogleOAuthConfigured = isGoogleOAuthConfigured;
+module.exports.isGoogleStrategyRegistered = isGoogleStrategyRegistered;

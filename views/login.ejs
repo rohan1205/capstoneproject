@@ -1,232 +1,441 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login — BreachLens</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Sora', 'system-ui', 'sans-serif'] },
-          animation: {
-            'float': 'float 8s ease-in-out infinite',
-            'float-slow': 'float 12s ease-in-out infinite reverse',
-            'pulse-glow': 'pulseGlow 4s ease-in-out infinite',
-            'shimmer': 'shimmer 2s linear infinite',
-          },
-          keyframes: {
-            float: { '0%, 100%': { transform: 'translate(0, 0) scale(1)' }, '50%': { transform: 'translate(30px, -30px) scale(1.1)' } },
-            floatS: { '0%, 100%': { transform: 'translate(0, 0)' }, '33%': { transform: 'translate(-20px, 20px)' }, '66%': { transform: 'translate(15px, -15px)' } },
-            pulseGlow: { '0%, 100%': { opacity: '0.6' }, '50%': { opacity: '1' } },
-            shimmer: { '0%': { backgroundPosition: '-200% 0' }, '100%': { backgroundPosition: '200% 0' } },
-          }
-        }
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign In — BreachLens</title>
+  <meta name="description" content="Sign in to BreachLens — AI-powered real-time data breach severity prediction platform."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#030712;--indigo:#6366f1;--purple:#8b5cf6;--violet:#a855f7;
+      --text:#f8fafc;--muted:rgba(248,250,252,0.55);--faint:rgba(248,250,252,0.30);
+      --border:rgba(255,255,255,0.08);--radius:14px;--tr:0.28s cubic-bezier(0.23,1,0.32,1);
+    }
+    html,body{height:100%;font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+    body{background:var(--bg);color:var(--text);display:flex;min-height:100vh;overflow:hidden;}
+
+    /* ── LEFT PANEL — Brand side ── */
+    .brand-panel{
+      display:none;
+      width:52%;flex-shrink:0;
+      position:relative;overflow:hidden;
+      background:linear-gradient(155deg,#060c1a 0%,#0a0520 50%,#050215 100%);
+    }
+    @media(min-width:900px){.brand-panel{display:flex;align-items:center;justify-content:center;flex-direction:column;}}
+
+    /* Animated grid */
+    .brand-panel::before{
+      content:'';position:absolute;inset:0;
+      background-image:
+        linear-gradient(rgba(99,102,241,0.06) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(99,102,241,0.06) 1px,transparent 1px);
+      background-size:48px 48px;
+    }
+    /* Vertical gradient fade on right edge */
+    .brand-panel::after{
+      content:'';position:absolute;top:0;right:0;width:120px;height:100%;
+      background:linear-gradient(90deg,transparent,var(--bg));
+    }
+
+    .bp-orb{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;}
+    .bp-orb-1{width:600px;height:600px;background:radial-gradient(circle,rgba(99,102,241,0.35) 0%,transparent 65%);top:-15%;left:-15%;animation:orbFloat 16s ease-in-out infinite;}
+    .bp-orb-2{width:450px;height:450px;background:radial-gradient(circle,rgba(139,92,246,0.28) 0%,transparent 65%);bottom:-10%;right:5%;animation:orbFloat 21s ease-in-out infinite reverse;animation-delay:-5s;}
+    .bp-orb-3{width:250px;height:250px;background:radial-gradient(circle,rgba(34,211,238,0.15) 0%,transparent 65%);top:40%;left:35%;animation:orbFloat 13s ease-in-out infinite;animation-delay:-3s;}
+    @keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1);}33%{transform:translate(25px,-30px) scale(1.06);}66%{transform:translate(-18px,22px) scale(0.96);}}
+
+    .brand-content{position:relative;z-index:2;padding:60px;max-width:480px;text-align:left;}
+    .brand-logo{
+      width:56px;height:56px;border-radius:16px;
+      background:linear-gradient(135deg,#4f46e5,#7c3aed,#9333ea);
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 8px 32px rgba(99,102,241,0.5),0 0 0 1px rgba(255,255,255,0.12) inset;
+      margin-bottom:28px;
+    }
+    .brand-logo svg{width:28px;height:28px;color:#fff;}
+    .brand-name{
+      font-size:2.6rem;font-weight:900;letter-spacing:-0.04em;line-height:1.05;
+      background:linear-gradient(135deg,#ffffff 20%,rgba(196,181,253,0.85) 60%,rgba(139,92,246,0.7) 100%);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+      margin-bottom:6px;
+    }
+    .brand-tagline{font-size:0.95rem;color:var(--muted);line-height:1.7;margin-bottom:40px;max-width:340px;}
+
+    .stat-pills{display:flex;flex-direction:column;gap:14px;}
+    .stat-pill{
+      display:flex;align-items:center;gap:14px;
+      padding:16px 20px;border-radius:14px;
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.07);
+      backdrop-filter:blur(12px);
+      transition:all var(--tr);
+    }
+    .stat-pill:hover{background:rgba(255,255,255,0.07);border-color:rgba(99,102,241,0.25);}
+    .pill-icon{
+      width:38px;height:38px;border-radius:10px;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .pill-val{font-size:1.15rem;font-weight:800;letter-spacing:-0.02em;}
+    .pill-lbl{font-size:0.75rem;color:var(--muted);font-weight:500;margin-top:1px;}
+
+    .trust-badges{display:flex;gap:10px;margin-top:32px;flex-wrap:wrap;}
+    .trust-badge{
+      display:flex;align-items:center;gap:6px;
+      padding:6px 12px;border-radius:99px;
+      background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);
+      font-size:0.72rem;font-weight:600;color:var(--faint);
+    }
+    .trust-badge svg{width:12px;height:12px;color:#6366f1;flex-shrink:0;}
+
+    /* ── RIGHT PANEL — Auth form ── */
+    .auth-panel{
+      flex:1;display:flex;align-items:center;justify-content:center;
+      padding:24px;position:relative;overflow-y:auto;
+      background:var(--bg);
+    }
+    /* Subtle left gradient */
+    .auth-panel::before{
+      content:'';position:absolute;left:0;top:0;bottom:0;width:40px;
+      background:linear-gradient(90deg,rgba(99,102,241,0.04),transparent);
+      pointer-events:none;
+    }
+
+    /* Floating shapes */
+    .auth-shape{
+      position:absolute;border-radius:18px;
+      background:linear-gradient(135deg,rgba(99,102,241,0.06),rgba(139,92,246,0.03));
+      border:1px solid rgba(255,255,255,0.06);
+      pointer-events:none;
+    }
+    .auth-shape-1{width:100px;height:100px;top:8%;right:6%;animation:shapeFloat 20s ease-in-out infinite;}
+    .auth-shape-2{width:65px;height:65px;bottom:12%;left:6%;animation:shapeFloat 26s ease-in-out infinite reverse;animation-delay:-7s;}
+    .auth-shape-3{width:40px;height:40px;top:55%;right:10%;animation:shapeFloat 17s ease-in-out infinite;animation-delay:-4s;}
+    @keyframes shapeFloat{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-16px) rotate(4deg);}}
+
+    .form-box{
+      width:100%;max-width:420px;position:relative;z-index:2;
+    }
+    /* Card enter */
+    .form-box{animation:cardUp 0.85s cubic-bezier(0.23,1,0.32,1) both;}
+    @keyframes cardUp{from{opacity:0;transform:translateY(28px) scale(0.97);}to{opacity:1;transform:translateY(0) scale(1);}}
+
+    .form-header{text-align:center;margin-bottom:36px;}
+    .form-logo{
+      width:52px;height:52px;border-radius:14px;margin:0 auto 18px;
+      background:linear-gradient(135deg,#4f46e5,#7c3aed,#9333ea);
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 8px 28px rgba(99,102,241,0.45),0 0 0 1px rgba(255,255,255,0.1) inset;
+      transition:all 0.4s ease;cursor:pointer;
+    }
+    .form-logo:hover{transform:scale(1.06) rotate(-4deg);box-shadow:0 12px 36px rgba(99,102,241,0.6);}
+    .form-logo svg{width:26px;height:26px;color:#fff;}
+    .form-title{font-size:1.7rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:6px;}
+    .form-subtitle{font-size:0.87rem;color:var(--muted);}
+
+    /* Glass card wrapper on mobile */
+    @media(max-width:899px){
+      .form-box{
+        background:linear-gradient(145deg,rgba(255,255,255,0.07) 0%,rgba(255,255,255,0.02) 100%);
+        border:1px solid rgba(255,255,255,0.12);
+        border-radius:24px;
+        padding:36px 28px;
+        backdrop-filter:blur(24px);
+        box-shadow:0 32px 80px -20px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,255,255,0.08);
       }
     }
-  </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <style>
-    * { box-sizing: border-box; }
-    .scene-3d { perspective: 1200px; }
-    .card-3d {
-      transform-style: preserve-3d;
-      transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-    }
-    .card-3d:hover { transform: rotateY(-4deg) rotateX(2deg) translateZ(20px); }
-    .card-3d-inner { transform: translateZ(40px); }
-    .glass-card {
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      background: linear-gradient(135deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.04) 100%);
-      border: 1px solid rgba(255,255,255,.18);
-      box-shadow: 0 25px 50px -12px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.1);
-    }
-    .orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.5;
-      animation: float 8s ease-in-out infinite;
-    }
-    .orb-1 { width: 400px; height: 400px; background: radial-gradient(circle, #6366f1 0%, transparent 70%); top: -10%; right: -10%; animation-delay: 0s; }
-    .orb-2 { width: 350px; height: 350px; background: radial-gradient(circle, #8b5cf6 0%, transparent 70%); bottom: -5%; left: -5%; animation-delay: -3s; animation-direction: reverse; }
-    .orb-3 { width: 200px; height: 200px; background: radial-gradient(circle, #a855f7 0%, transparent 70%); top: 40%; left: 30%; animation-delay: -5s; animation-duration: 10s; }
-    .grid-bg {
-      background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
-      background-size: 60px 60px;
-    }
-    .input-group { position: relative; }
-    .input-group label {
-      position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: rgba(255,255,255,.5);
-      font-size: 0.9375rem;
-      pointer-events: none;
-      transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+
+    /* ── Input ── */
+    .input-group{position:relative;margin-bottom:20px;}
+    .input-group label{
+      position:absolute;left:46px;top:50%;transform:translateY(-50%);
+      color:rgba(248,250,252,0.3);font-size:0.9rem;font-weight:400;
+      pointer-events:none;transition:all var(--tr);
     }
     .input-group input:focus ~ label,
-    .input-group input:not(:placeholder-shown) ~ label {
-      top: -12px;
-      left: 12px;
-      font-size: 0.7rem;
-      color: #a78bfa;
-      background: linear-gradient(180deg, #0c0a1a 50%, #0c0a1a 50%);
-      padding: 0 8px;
-      letter-spacing: 0.05em;
+    .input-group input:not(:placeholder-shown) ~ label{
+      top:-11px;left:12px;font-size:0.68rem;font-weight:700;letter-spacing:0.07em;
+      color:#818cf8;padding:0 6px;text-transform:uppercase;
+      background:linear-gradient(180deg,var(--bg) 60%,transparent 40%);
     }
-    .input-group input::placeholder { color: transparent; }
-    .input-group input:focus {
-      box-shadow: 0 0 0 3px rgba(99,102,241,.25), 0 0 30px rgba(99,102,241,.1);
+    .input-group .i-icon{
+      position:absolute;left:15px;top:50%;transform:translateY(-50%);
+      color:rgba(248,250,252,0.25);pointer-events:none;
+      transition:color var(--tr),transform var(--tr);
     }
-    .glow-btn {
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-      background-size: 200% 200%;
-      box-shadow: 0 0 30px rgba(99,102,241,.4), 0 10px 40px -10px rgba(139,92,246,.5), inset 0 1px 0 rgba(255,255,255,.2);
-      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-      position: relative;
-      overflow: hidden;
+    .input-group input:focus ~ .i-icon{color:#818cf8;transform:translateY(-50%) scale(1.08);}
+    .field{
+      width:100%;padding:16px 16px 16px 46px;border-radius:var(--radius);
+      background:rgba(255,255,255,0.04);border:1px solid var(--border);
+      color:var(--text);font-family:'Inter',sans-serif;font-size:0.9375rem;
+      outline:none;transition:all var(--tr);
     }
-    .glow-btn::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, transparent, rgba(255,255,255,.15), transparent);
-      transform: translateX(-100%);
-      transition: transform 0.6s ease;
+    .field::placeholder{color:transparent;}
+    .field:focus{
+      border-color:rgba(99,102,241,0.6);background:rgba(255,255,255,0.06);
+      box-shadow:0 0 0 3px rgba(99,102,241,0.14),0 0 30px rgba(99,102,241,0.05),inset 0 1px 0 rgba(255,255,255,0.06);
     }
-    .glow-btn:hover {
-      box-shadow: 0 0 50px rgba(139,92,246,.5), 0 15px 50px -10px rgba(139,92,246,.4);
-      transform: translateY(-3px) scale(1.01);
-      background-position: 100% 100%;
+    .field-pw{padding-right:52px;}
+
+    .pw-toggle{
+      position:absolute;right:4px;top:50%;transform:translateY(-50%);
+      width:38px;height:38px;border-radius:10px;border:none;background:none;
+      color:rgba(248,250,252,0.3);cursor:pointer;transition:all var(--tr);
+      display:flex;align-items:center;justify-content:center;
     }
-    .glow-btn:hover::before { transform: translateX(100%); }
-    .glow-btn:active { transform: translateY(0) scale(0.98); }
-    .float-shape {
-      position: absolute;
-      border-radius: 24px;
-      background: linear-gradient(135deg, rgba(255,255,255,.06) 0%, rgba(255,255,255,.02) 100%);
-      border: 1px solid rgba(255,255,255,.08);
-      backdrop-filter: blur(10px);
-      animation: floatS 15s ease-in-out infinite;
+    .pw-toggle:hover{background:rgba(255,255,255,0.06);color:#818cf8;}
+
+    /* ── Primary Button ── */
+    .btn-primary{
+      width:100%;padding:15px;border-radius:var(--radius);border:1px solid rgba(139,92,246,0.5);
+      background:linear-gradient(135deg,#4f46e5,#7c3aed 50%,#9333ea);
+      background-size:200% 200%;color:#fff;font-family:'Inter',sans-serif;
+      font-size:0.95rem;font-weight:700;letter-spacing:0.01em;
+      cursor:pointer;transition:all var(--tr);
+      position:relative;overflow:hidden;
+      box-shadow:0 0 0 1px rgba(255,255,255,0.1) inset,0 0 40px rgba(99,102,241,0.3),0 8px 32px -8px rgba(99,102,241,0.5);
     }
-    .float-shape-1 { width: 120px; height: 120px; top: 15%; left: 10%; animation-delay: 0s; transform: rotate(15deg); }
-    .float-shape-2 { width: 80px; height: 80px; bottom: 20%; right: 15%; animation-delay: -4s; animation-duration: 18s; transform: rotate(-20deg); }
-    .float-shape-3 { width: 60px; height: 60px; top: 60%; left: 5%; animation-delay: -7s; animation-duration: 12s; transform: rotate(45deg); }
-    @keyframes floatS { 0%, 100% { transform: translate(0, 0) rotate(var(--r, 0deg)); } 33% { transform: translate(-15px, 20px) rotate(calc(var(--r, 0deg) + 10deg)); } 66% { transform: translate(20px, -10px) rotate(calc(var(--r, 0deg) - 5deg)); } }
-    .error-enter { animation: errorSlide 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
-    @keyframes errorSlide { from { opacity: 0; transform: translateY(-10px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-    .card-enter { animation: cardFade 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards; opacity: 0; }
-    @keyframes cardFade { from { opacity: 0; transform: translateY(30px) scale(0.96) rotateX(5deg); } to { opacity: 1; transform: translateY(0) scale(1) rotateX(0); } }
-    .logo-icon-3d {
-      transform: perspective(500px) rotateY(-5deg);
-      box-shadow: 0 20px 40px -10px rgba(99,102,241,.4);
-      transition: transform 0.4s ease;
+    .btn-primary::before{
+      content:'';position:absolute;inset:0;
+      background:linear-gradient(130deg,transparent 25%,rgba(255,255,255,0.18) 50%,transparent 75%);
+      transform:translateX(-120%) skewX(-15deg);transition:transform 0.7s ease;
     }
-    .logo-icon-3d:hover { transform: perspective(500px) rotateY(0deg) scale(1.05); }
+    .btn-primary:hover{
+      transform:translateY(-2px) scale(1.01);background-position:100% 100%;
+      box-shadow:0 0 0 1px rgba(255,255,255,0.15) inset,0 0 60px rgba(139,92,246,0.45),0 12px 48px -8px rgba(99,102,241,0.55);
+    }
+    .btn-primary:hover::before{transform:translateX(120%) skewX(-15deg);}
+    .btn-primary:active{transform:translateY(0) scale(0.985);}
+
+    /* ── Google Button ── */
+    .btn-google{
+      width:100%;padding:14px;border-radius:var(--radius);
+      background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);
+      color:rgba(248,250,252,0.85);font-family:'Inter',sans-serif;
+      font-size:0.9rem;font-weight:600;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;gap:10px;
+      transition:all var(--tr);position:relative;overflow:hidden;
+    }
+    .btn-google::before{
+      content:'';position:absolute;inset:0;
+      background:linear-gradient(135deg,transparent,rgba(255,255,255,0.04),transparent);
+      transform:translateX(-120%);transition:transform 0.6s ease;
+    }
+    .btn-google:hover{
+      background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.18);
+      transform:translateY(-1px) scale(1.005);color:var(--text);
+    }
+    .btn-google:hover::before{transform:translateX(120%);}
+
+    /* ── Separator ── */
+    .sep{display:flex;align-items:center;gap:14px;margin:24px 0;}
+    .sep-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);}
+    .sep-text{font-size:0.75rem;color:var(--faint);font-weight:500;white-space:nowrap;}
+
+    /* ── Error Alert ── */
+    .alert-err{
+      display:flex;align-items:flex-start;gap:10px;padding:13px 15px;
+      border-radius:var(--radius);background:rgba(248,113,113,0.07);
+      border:1px solid rgba(248,113,113,0.22);color:#fca5a5;font-size:0.855rem;
+      margin-bottom:22px;line-height:1.5;
+      animation:alertIn 0.4s cubic-bezier(0.23,1,0.32,1) both;
+    }
+    @keyframes alertIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+
+    /* ── Footer link ── */
+    .form-footer{text-align:center;margin-top:26px;font-size:0.875rem;color:var(--faint);}
+    .form-footer a{color:#818cf8;font-weight:600;text-decoration:none;transition:color var(--tr);}
+    .form-footer a:hover{color:#c4b5fd;}
+
+    /* ── Floating "beta" label ── */
+    .beta-tag{
+      display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:99px;
+      background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.25);
+      color:#818cf8;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;
+      margin-left:8px;vertical-align:middle;
+    }
+    .live-dot{width:5px;height:5px;border-radius:50%;background:#34d399;animation:livePulse 1.8s ease-in-out infinite;}
+    @keyframes livePulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.8);}}
   </style>
 </head>
-<body class="min-h-screen bg-[#05030d] grid-bg flex items-center justify-center p-4 font-sans overflow-hidden relative">
-  <div class="absolute inset-0 overflow-hidden pointer-events-none">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-    <div class="float-shape float-shape-1"></div>
-    <div class="float-shape float-shape-2"></div>
-    <div class="float-shape float-shape-3"></div>
-  </div>
+<body>
 
-  <div class="scene-3d w-full max-w-md relative z-10">
-    <div class="card-3d glass-card rounded-3xl p-8 sm:p-12 card-enter shadow-2xl">
-      <div class="card-3d-inner">
-        <div class="text-center mb-10">
-          <div class="logo-icon-3d w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-500 to-violet-600 flex items-center justify-center">
-            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+  <!-- ─── LEFT BRAND PANEL ─── -->
+  <div class="brand-panel">
+    <div class="bp-orb bp-orb-1"></div>
+    <div class="bp-orb bp-orb-2"></div>
+    <div class="bp-orb bp-orb-3"></div>
+
+    <div class="brand-content">
+      <!-- Logo -->
+      <div class="brand-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+      </div>
+
+      <div class="brand-name">BreachLens<span class="beta-tag"><span class="live-dot"></span>AI</span></div>
+      <p class="brand-tagline">
+        Real-time AI-powered breach severity prediction. Detect critical threats before they escalate using our ensemble ML models trained on 5,000+ breach incidents.
+      </p>
+
+      <!-- Live stats pills -->
+      <div class="stat-pills">
+        <div class="stat-pill">
+          <div class="pill-icon" style="background:rgba(99,102,241,0.15);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 5.414V19a2 2 0 01-2 2z"/></svg>
           </div>
-          <h1 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight bg-clip-text">BreachLens</h1>
-          <p class="text-white/50 mt-2 text-sm font-medium">Welcome back — sign in to continue</p>
+          <div>
+            <div class="pill-val" style="color:#818cf8;">81%</div>
+            <div class="pill-lbl">Classifier Accuracy (5-Fold CV)</div>
+          </div>
         </div>
-
-        <% if (typeof error !== 'undefined' && error && error.length > 0) { %>
-          <div class="mb-6 px-4 py-3 rounded-xl bg-red-500/15 border border-red-400/30 text-red-200 text-sm text-center error-enter backdrop-blur-sm" role="alert"><%= error %></div>
-        <% } %>
-
-        <form action="/login" method="POST" class="space-y-6">
-          <div class="input-group">
-            <input
-              type="email"
-              name="email"
-              id="email"
-              placeholder=" "
-              required
-              autocomplete="email"
-              class="w-full px-4 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder-transparent focus:border-indigo-400/60 focus:ring-2 focus:ring-indigo-400/20 outline-none transition-all duration-300"
-            />
-            <label for="email">Email</label>
+        <div class="stat-pill">
+          <div class="pill-icon" style="background:rgba(16,185,129,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
           </div>
-
-          <div class="input-group relative">
-            <input
-              type="password"
-              name="password"
-              id="password"
-              placeholder=" "
-              required
-              autocomplete="current-password"
-              class="w-full px-4 py-4 pr-14 rounded-2xl bg-white/5 border border-white/10 text-white placeholder-transparent focus:border-indigo-400/60 focus:ring-2 focus:ring-indigo-400/20 outline-none transition-all duration-300"
-            />
-            <label for="password">Password</label>
-            <button type="button" id="togglePassword" class="absolute right-4 top-1/2 -translate-y-1/2 text-white/50 hover:text-indigo-300 focus:outline-none p-1.5 rounded-lg transition-all hover:bg-white/5" aria-label="Toggle password visibility">
-              <svg id="eyeOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-              <svg id="eyeClosed" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878a4.5 4.5 0 106.262 6.262M4.031 11.117A8.959 8.959 0 003 12c0 4.478 2.943 8.268 7 9.543 3.947-1.192 7.26-3.408 9.542-7.187m-1.746-2.117A9.97 9.97 0 0112 5c4.478 0 8.268 2.943 9.542 7-.575 1.83-1.35 3.535-2.242 5.084"/></svg>
-            </button>
+          <div>
+            <div class="pill-val" style="color:#34d399;">R²=0.98</div>
+            <div class="pill-lbl">Financial Impact Regressor</div>
           </div>
-
-          <button type="submit" class="glow-btn w-full py-4 rounded-2xl text-white font-semibold text-base">
-            Sign In
-          </button>
-        </form>
-
-        <div class="flex items-center gap-4 my-8">
-          <span class="flex-1 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></span>
-          <span class="text-white/40 text-xs font-medium">or continue with</span>
-          <span class="flex-1 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></span>
         </div>
+        <div class="stat-pill">
+          <div class="pill-icon" style="background:rgba(192,132,252,0.12);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
+          </div>
+          <div>
+            <div class="pill-val" style="color:#c084fc;">5,000+</div>
+            <div class="pill-lbl">Breach Records Trained On</div>
+          </div>
+        </div>
+      </div>
 
-        <a href="/auth/google" class="block group">
-          <button type="button" class="w-full py-4 rounded-2xl border border-white/15 bg-white/5 text-white/90 font-medium text-sm flex items-center justify-center gap-3 hover:bg-white/10 hover:border-white/25 transition-all duration-300 group-hover:scale-[1.01] active:scale-[0.99]">
-            <svg class="w-5 h-5" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59a14.5 14.5 0 0 1 0-9.18l-7.98-6.19a24.06 24.06 0 0 0 0 21.56l7.98-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-            Google
-          </button>
-        </a>
-
-        <p class="text-center mt-8 text-white/50 text-sm">
-          New here? <a href="/signup" class="text-indigo-300 hover:text-white font-semibold transition-colors underline-offset-2 hover:underline">Create an account</a>
-        </p>
+      <!-- Trust badges -->
+      <div class="trust-badges">
+        <div class="trust-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          JWT Secured
+        </div>
+        <div class="trust-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-width="2" d="M12 6v6l4 2"/></svg>
+          Real-time
+        </div>
+        <div class="trust-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          Encrypted
+        </div>
+        <div class="trust-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+          Cloud Ready
+        </div>
       </div>
     </div>
   </div>
 
-  <script>
-    (function() {
-      var toggle = document.getElementById('togglePassword');
-      var input = document.getElementById('password');
-      var eyeOpen = document.getElementById('eyeOpen');
-      var eyeClosed = document.getElementById('eyeClosed');
-      if (toggle && input) {
-        toggle.addEventListener('click', function() {
-          var isPass = input.type === 'password';
-          input.type = isPass ? 'text' : 'password';
-          eyeOpen.classList.toggle('hidden', isPass);
-          eyeClosed.classList.toggle('hidden', !isPass);
-        });
-      }
-    })();
-  </script>
+  <!-- ─── RIGHT AUTH PANEL ─── -->
+  <div class="auth-panel" id="auth-bg">
+    <div class="auth-shape auth-shape-1"></div>
+    <div class="auth-shape auth-shape-2"></div>
+    <div class="auth-shape auth-shape-3"></div>
+
+    <div class="form-box">
+
+      <!-- Mobile logo (hidden on desktop) -->
+      <div class="form-header">
+        <div class="form-logo" id="formLogo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+        </div>
+        <div class="form-title">Welcome back</div>
+        <div class="form-subtitle">Sign in to your BreachLens account</div>
+      </div>
+
+      <!-- Error alert -->
+      <% if (typeof error !== 'undefined' && error && error.length > 0) { %>
+        <div class="alert-err" role="alert">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f87171" style="flex-shrink:0;margin-top:1px" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+          <span><%= error %></span>
+        </div>
+      <% } %>
+
+      <!-- Login Form -->
+      <form action="/login" method="POST" id="loginForm" autocomplete="on">
+        <!-- Email -->
+        <div class="input-group">
+          <input type="email" name="email" id="email" placeholder=" " required autocomplete="email" class="field" id="loginEmail"/>
+          <svg class="i-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          <label for="email">Email address</label>
+        </div>
+
+        <!-- Password -->
+        <div class="input-group">
+          <input type="password" name="password" id="password" placeholder=" " required autocomplete="current-password" class="field field-pw"/>
+          <svg class="i-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <button type="button" class="pw-toggle" id="togglePw" aria-label="Toggle password">
+            <svg id="eyeOn" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            <svg id="eyeOff" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" style="display:none"><path d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M4.031 11.117A8.959 8.959 0 003 12c0 4.478 2.943 8.268 7 9.543 3.947-1.192 7.26-3.408 9.542-7.187m-1.746-2.117A9.97 9.97 0 0112 5c4.478 0 8.268 2.943 9.542 7"/></svg>
+          </button>
+          <label for="password">Password</label>
+        </div>
+
+        <button type="submit" class="btn-primary" id="signInBtn" style="margin-top:4px;">
+          <span id="btnText">Sign In</span>
+        </button>
+      </form>
+
+      <!-- Divider -->
+      <div class="sep">
+        <span class="sep-line"></span>
+        <span class="sep-text">or continue with</span>
+        <span class="sep-line"></span>
+      </div>
+
+      <!-- Google OAuth -->
+      <% if (typeof googleConfigured !== 'undefined' && googleConfigured) { %>
+        <a href="/auth/google" style="text-decoration:none;display:block;">
+          <button type="button" class="btn-google">
+            <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59a14.5 14.5 0 010-9.18l-7.98-6.19a24.06 24.06 0 000 21.56l7.98-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            Continue with Google
+          </button>
+        </a>
+      <% } else { %>
+        <button type="button" class="btn-google" disabled style="opacity:0.45;cursor:not-allowed;" title="Google OAuth not configured">
+          <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59a14.5 14.5 0 010-9.18l-7.98-6.19a24.06 24.06 0 000 21.56l7.98-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          Continue with Google
+        </button>
+      <% } %>
+
+      <p class="form-footer">
+        New to BreachLens? <a href="/signup">Create account &rarr;</a>
+      </p>
+    </div>
+  </div>
+
+<script>
+(function(){
+  // Password toggle
+  var pwInput = document.getElementById('password');
+  var eyeOn   = document.getElementById('eyeOn');
+  var eyeOff  = document.getElementById('eyeOff');
+  document.getElementById('togglePw').addEventListener('click', function(){
+    var show = pwInput.type === 'password';
+    pwInput.type = show ? 'text' : 'password';
+    eyeOn.style.display  = show ? 'none' : '';
+    eyeOff.style.display = show ? '' : 'none';
+  });
+
+  // Form submit loading state
+  document.getElementById('loginForm').addEventListener('submit', function(){
+    var btn  = document.getElementById('signInBtn');
+    var txt  = document.getElementById('btnText');
+    btn.disabled = true;
+    txt.textContent = 'Signing in…';
+    btn.style.opacity = '0.8';
+  });
+})();
+</script>
 </body>
 </html>

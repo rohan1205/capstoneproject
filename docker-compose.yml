@@ -4,29 +4,74 @@ services:
   # ── MongoDB ──
   mongo:
     image: mongo:7
-    container_name: loginpage-mongo
+    container_name: breachlens-db
     restart: unless-stopped
     ports:
-      - "27018:27017"
+      - "27018:27017" # Host port 27018 to avoid local conflicts
     volumes:
       - mongo-data:/data/db
+    networks:
+      - breachlens-net
+
+  # ── ML Microservice (FastAPI) ──
+  ml:
+    build:
+      context: .
+      dockerfile: ml/Dockerfile
+    container_name: breachlens-ml
+    restart: unless-stopped
+    # Expose 8001 on host, internal uvicorn is 8000
+    ports:
+      - "8001:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    networks:
+      - breachlens-net
 
   # ── Node.js App ──
   app:
     build: .
-    container_name: loginpage-app
+    container_name: breachlens-app
     restart: unless-stopped
     ports:
       - "3000:3000"
-    depends_on:
-      - mongo
     environment:
       PORT: 3000
-      MONGODB_URI: mongodb://mongo:27017/loginpage
-      SESSION_SECRET: change-me-in-production
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-your-google-client-id}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-your-google-client-secret}
-      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL:-http://localhost:3000/auth/google/callback}
+      MONGODB_URI: mongodb://mongo:27017/breachlens
+      SESSION_SECRET: ${SESSION_SECRET:-super-secret-key}
+      NODE_ENV: production
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL:-http://localhost/auth/google/callback}
+      ML_API_URL: http://ml:8000
+      ML_TIMEOUT_MS: 10000
+    networks:
+      - breachlens-net
+    depends_on:
+      mongo:
+        condition: service_started
+      ml:
+        condition: service_healthy
+
+  # ── Nginx (Reverse Proxy) ──
+  nginx:
+    build: ./nginx
+    container_name: breachlens-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+    networks:
+      - breachlens-net
+
+networks:
+  breachlens-net:
+    driver: bridge
 
 volumes:
   mongo-data:
+

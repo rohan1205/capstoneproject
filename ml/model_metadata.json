@@ -1,0 +1,38 @@
+{
+  "version": "v2.0",
+  "trained_at": "2026-04-21T21:59:39.432111+00:00",
+  "dataset_size": 5000,
+  "features": [
+    "records_affected",
+    "detection_time_hours",
+    "industry",
+    "attack_vector",
+    "data_type",
+    "geography"
+  ],
+  "severity_classes": [
+    "Low",
+    "Medium",
+    "High",
+    "Critical"
+  ],
+  "classifier": {
+    "algorithm": "RandomForestClassifier",
+    "test_accuracy": 0.81,
+    "cv_accuracy": 0.8035,
+    "feature_importances": {
+      "records_affected": 0.43566379628440105,
+      "detection_time_hours": 0.26277361376001435,
+      "attack_vector": 0.14101007563960033,
+      "industry": 0.06400136681514394,
+      "data_type": 0.05065840800840528,
+      "geography": 0.04589273949243506
+    }
+  },
+  "regressor": {
+    "algorithm": "GradientBoostingRegressor",
+    "target": "financial_impact_usd",
+    "test_mae_usd": 174257.32,
+    "test_r2": 0.9804
+  }
+}

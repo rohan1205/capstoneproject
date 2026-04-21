@@ -41,8 +41,15 @@ passport.use(new LocalStrategy(
   }
 ));
 
+const googleOAuthEnabled = Boolean(
+  process.env.GOOGLE_CLIENT_ID &&
+  process.env.GOOGLE_CLIENT_SECRET &&
+  process.env.GOOGLE_CALLBACK_URL &&
+  process.env.GOOGLE_CLIENT_ID !== 'your-google-client-id'
+);
+
 // ──── Google OAuth Strategy ────
-if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_ID !== 'your-google-client-id') {
+if (googleOAuthEnabled) {
   passport.use(new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
@@ -77,6 +84,11 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_ID !== 'your-googl
       }
     }
   ));
+} else {
+  if (process.env.NODE_ENV === 'production') {
+    console.warn('Google OAuth disabled. Set GOOGLE_CLIENT_ID/SECRET/CALLBACK_URL to enable it.');
+  }
 }
 
 module.exports = passport;
+module.exports.googleOAuthEnabled = googleOAuthEnabled;
