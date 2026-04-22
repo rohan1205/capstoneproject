@@ -17,4 +17,4 @@ RUN python generate_dataset.py && python train_model.py
 EXPOSE 8000
 
 # Start uvicorn
-CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]`
+CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
