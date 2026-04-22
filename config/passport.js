@@ -18,7 +18,7 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-// ──── Local Strategy ────
+// ──── Local Strategy ────test
 passport.use(new LocalStrategy(
   { usernameField: 'email' },
   async (email, password, done) => {
