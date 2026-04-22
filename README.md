@@ -123,6 +123,5 @@ The `Jenkinsfile` automate the following stages:
 ---
 
 <div align="center">
-  <p>Built for the Capstone Project — 2024</p>
-  <p><b>Author:</b> gaurav5815</p>
+  <p>Built for the Capstone Project — 2026</p>
 </div>
