@@ -16,8 +16,7 @@ services:
   # ── ML Microservice (FastAPI) ──
   ml:
     build:
-      context: .
-      dockerfile: ml/Dockerfile
+      context: ./ml
     container_name: breachlens-ml
     restart: unless-stopped
     # Expose 8001 on host, internal uvicorn is 8000
