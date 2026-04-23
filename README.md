@@ -45,7 +45,24 @@ Optional:
 - `ML_TRAINING_CSV`
 - `ML_MODEL_VERSION`
 
-## Local Development
+## Getting Started and Running the App
+
+### Option 1: Docker Compose (Recommended)
+This is the easiest way to run the entire stack (Node.js App, MongoDB, ML Service, and Nginx proxy).
+
+Start all services:
+```bash
+docker compose up -d --build
+```
+The application will be available at `http://localhost`.
+
+Stop and clean up all services:
+```bash
+docker compose down --remove-orphans
+```
+
+### Option 2: Local Development
+If you want to run the components separately for development:
 
 1. Install dependencies:
 ```bash
@@ -53,33 +70,29 @@ npm install
 pip install -r requirements.txt
 ```
 
-2. Train or refresh the model:
+2. Train or refresh the ML model:
 ```bash
 python ml/train_model.py
 ```
 
-3. Run services locally (separate terminals):
+3. Start a local MongoDB service on port 27017.
+
+4. Run services in separate terminals:
+
+Terminal 1 (Backend ML Service):
 ```bash
 python -m uvicorn ml.api:app --reload --port 8000
+```
+
+Terminal 2 (Node.js Web App):
+```bash
 npm start
 ```
 
-4. Open:
-- App: `http://localhost:3000`
-- App health: `http://localhost:3000/health`
-- ML health: `http://localhost:8000/health`
-
-## Docker Runtime
-
-Start all services:
-```bash
-docker compose up -d --build
-```
-
-Stop all services:
-```bash
-docker compose down
-```
+5. Access the services:
+- Main App: `http://localhost:3000`
+- App Health check: `http://localhost:3000/health`
+- ML API Health check: `http://localhost:8000/health`
 
 ## CI/CD (Jenkins)
 
