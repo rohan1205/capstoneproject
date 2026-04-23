@@ -1,4 +1,5 @@
 services:
+  # ── MongoDB ──
   mongo:
     image: mongo:7
     restart: unless-stopped
@@ -9,6 +10,7 @@ services:
     networks:
       - breachlens-net
 
+  # ── ML Microservice (FastAPI) ──
   ml:
     build:
       context: ./ml
@@ -23,6 +25,7 @@ services:
     networks:
       - breachlens-net
 
+  # ── Node.js App ──
   app:
     build: .
     restart: unless-stopped
@@ -46,11 +49,12 @@ services:
       ml:
         condition: service_healthy
 
+  # ── Nginx (Reverse Proxy) ──
   nginx:
     build: ./nginx
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "8082:80"   # 🔥 FIXED PORT (was 80)
     depends_on:
       - app
     networks:
