@@ -11,7 +11,7 @@ pipeline {
         timestamps()
         buildDiscarder(logRotator(numToKeepStr: '15'))
         timeout(time: 30, unit: 'MINUTES')
-        disableConcurrentBuilds()  // ✅ Prevents port conflicts from parallel runs
+        disableConcurrentBuilds()
     }
 
     stages {
@@ -19,6 +19,18 @@ pipeline {
         stage('Initialize') {
             steps {
                 echo "Building BreachLens version ${IMAGE_TAG}"
+
+                // ✅ Check Docker is running BEFORE doing anything
+                bat '''
+                echo Checking Docker availability...
+                docker info >nul 2>&1
+                if %errorlevel% neq 0 (
+                    echo ❌ Docker is not running! Please start Docker Desktop.
+                    exit /b 1
+                )
+                echo ✅ Docker is running.
+                '''
+
                 bat 'npm cache clean --force'
                 bat 'rmdir /s /q node_modules || exit 0'
             }
@@ -70,10 +82,10 @@ pipeline {
 
                 docker compose down --volumes --remove-orphans || exit 0
 
-                docker rm -f breachlens-ml   || exit 0
-                docker rm -f breachlens-app  || exit 0
-                docker rm -f breachlens-nginx || exit 0
-                docker rm -f breachlens-db   || exit 0
+                docker rm -f breachlens-ml    || exit 0
+                docker rm -f breachlens-app   || exit 0
+                docker rm -f breachlens-nginx  || exit 0
+                docker rm -f breachlens-db    || exit 0
 
                 echo ===============================
                 echo FREEING PORTS
@@ -105,13 +117,13 @@ pipeline {
                 :loop
                 curl -f http://localhost:8082/health >nul 2>&1
                 if %errorlevel%==0 (
-                    echo App is healthy!
+                    echo ✅ App is healthy!
                     exit /b 0
                 )
 
                 set /a count+=1
                 if %count%==%max_retries% (
-                    echo Health check failed after %max_retries% attempts!
+                    echo ❌ Health check failed after %max_retries% attempts!
                     exit /b 1
                 )
 
@@ -130,13 +142,12 @@ pipeline {
 
         failure {
             echo '❌ Pipeline failed! Collecting logs...'
-            bat 'docker compose logs'
-            bat 'docker compose ps'
+            bat 'docker compose logs  || exit 0'
+            bat 'docker compose ps    || exit 0'
         }
 
         always {
-            bat 'docker compose ps'
-            // ✅ Always clean up to avoid port leaks for next run
+            bat 'docker compose ps                            || exit 0'
             bat 'docker compose down --volumes --remove-orphans || exit 0'
         }
     }
