@@ -249,6 +249,10 @@
     .form-footer a{color:#818cf8;font-weight:600;text-decoration:none;transition:color var(--tr);}
     .form-footer a:hover{color:#c4b5fd;}
 
+    /* Forgot password link */
+    a[href="/forgot-password"]{color:#818cf8;font-weight:600;}
+    a[href="/forgot-password"]:hover{color:#c4b5fd;text-decoration:underline;}
+
     /* ── Floating "beta" label ── */
     .beta-tag{
       display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:99px;
@@ -379,6 +383,11 @@
             <svg id="eyeOff" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" style="display:none"><path d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M4.031 11.117A8.959 8.959 0 003 12c0 4.478 2.943 8.268 7 9.543 3.947-1.192 7.26-3.408 9.542-7.187m-1.746-2.117A9.97 9.97 0 0112 5c4.478 0 8.268 2.943 9.542 7"/></svg>
           </button>
           <label for="password">Password</label>
+        </div>
+
+        <!-- Forgot Password Link -->
+        <div style="text-align:right;margin-top:8px;margin-bottom:16px;">
+          <a href="/forgot-password" style="font-size:0.85rem;color:#818cf8;text-decoration:none;transition:color 0.28s;">Forgot password?</a>
         </div>
 
         <button type="submit" class="btn-primary" id="signInBtn" style="margin-top:4px;">

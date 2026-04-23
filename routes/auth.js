@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
+const bcrypt = require('bcryptjs');
 const User = require('../models/User');
+const { sendPasswordResetEmail } = require('../utils/mail');
 
 const GOOGLE_PLACEHOLDER_ID = 'your-google-client-id';
 // ──── Middleware ────
@@ -214,6 +216,117 @@ router.get('/logout', (req, res, next) => {
     if (err) return next(err);
     res.redirect('/login');
   });
+});
+
+// ──── Forgot Password ────
+router.get('/forgot-password', ensureGuest, (req, res) => {
+  const flashedError = typeof req.flash === 'function' ? req.flash('error') : [];
+  const queryError = req.query.error ? [req.query.error] : [];
+  res.render('forgot-password', { error: flashedError.length ? flashedError : queryError });
+});
+
+router.post('/forgot-password', ensureGuest, async (req, res) => {
+  try {
+    const { email } = req.body || {};
+    if (!email) {
+      return redirectWithError(req, res, '/forgot-password', 'Email is required.');
+    }
+
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
+    
+    if (!user) {
+      // For security, don't reveal if email exists
+      return redirectWithError(req, res, '/login', 'If that email address is in our system, you will receive a password reset link shortly.');
+    }
+
+    const token = user.generatePasswordReset();
+    await user.save({ validateBeforeSave: false });
+
+    // Send reset email
+    const resetUrl = `${process.env.APP_URL || 'http://localhost:3000'}/reset-password/${token}`;
+    const emailSent = await sendPasswordResetEmail(user.email, resetUrl);
+
+    return redirectWithError(req, res, '/login', 'Password reset link sent to your email!');
+  } catch (err) {
+    console.error('[POST /forgot-password]', err);
+    return redirectWithError(req, res, '/forgot-password', 'Something went wrong.');
+  }
+});
+
+// ──── Reset Password ────
+router.get('/reset-password/:token', ensureGuest, async (req, res) => {
+  try {
+    const { token } = req.params;
+    const crypto = require('crypto');
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return redirectWithError(req, res, '/forgot-password', 'Password reset token is invalid or has expired.');
+    }
+
+    const flashedError = typeof req.flash === 'function' ? req.flash('error') : [];
+    const queryError = req.query.error ? [req.query.error] : [];
+    res.render('reset-password', { token, error: flashedError.length ? flashedError : queryError });
+  } catch (err) {
+    console.error('[GET /reset-password/:token]', err);
+    return redirectWithError(req, res, '/forgot-password', 'Something went wrong.');
+  }
+});
+
+router.post('/reset-password/:token', ensureGuest, async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { newPassword, confirmPassword } = req.body || {};
+
+    if (!newPassword || !confirmPassword) {
+      return redirectWithError(req, res, `/reset-password/${token}`, 'All password fields are required.');
+    }
+
+    if (newPassword !== confirmPassword) {
+      return redirectWithError(req, res, `/reset-password/${token}`, 'Passwords do not match.');
+    }
+
+    if (newPassword.length < 8) {
+      return redirectWithError(req, res, `/reset-password/${token}`, 'Password must be at least 8 characters.');
+    }
+
+    const hasUpper = /[A-Z]/.test(newPassword);
+    const hasLower = /[a-z]/.test(newPassword);
+    const hasNumber = /\d/.test(newPassword);
+    if (!hasUpper || !hasLower || !hasNumber) {
+      return redirectWithError(req, res, `/reset-password/${token}`, 'Password must include uppercase, lowercase, and a number.');
+    }
+
+    const crypto = require('crypto');
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return redirectWithError(req, res, '/forgot-password', 'Password reset token is invalid or has expired.');
+    }
+
+    // Update password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    return redirectWithError(req, res, '/login', 'Password reset successfully! Please log in with your new password.');
+  } catch (err) {
+    console.error('[POST /reset-password/:token]', err);
+    return redirectWithError(req, res, '/forgot-password', 'Something went wrong.');
+  }
 });
 
 module.exports = router;
