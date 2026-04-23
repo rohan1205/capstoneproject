@@ -94,7 +94,7 @@ pipeline {
                 set count=0
 
                 :loop
-                curl -f http://localhost/health >nul 2>&1
+                curl -f http://localhost:8082/health >nul 2>&1
                 if %errorlevel%==0 (
                     echo App is healthy!
                     exit /b 0
