@@ -14,6 +14,7 @@ pipeline {
     }
 
     stages {
+
         stage('Initialize') {
             steps {
                 echo "Building BreachLens version ${IMAGE_TAG}"
@@ -22,7 +23,7 @@ pipeline {
             }
         }
 
-        stage('Parallel: Install Dependencies') {
+        stage('Install Dependencies (Parallel)') {
             parallel {
                 stage('Node.js Deps') {
                     steps {
@@ -38,14 +39,14 @@ pipeline {
             }
         }
 
-        stage('Parallel: Quality Checks') {
+        stage('Quality Checks (Parallel)') {
             parallel {
                 stage('Node.js Tests') {
                     steps {
                         bat 'npm test'
                     }
                 }
-                stage('Python Lint/Comp') {
+                stage('Python Compile Check') {
                     steps {
                         bat 'python -m compileall ml'
                     }
@@ -53,31 +54,61 @@ pipeline {
             }
         }
 
-        stage('Build & Tag Images') {
+        stage('Build Docker Images') {
             steps {
                 bat 'docker compose build'
-                // Optional: Tag for registry if credentials provided
-                // bat "docker tag breachlens-app ${DOCKER_REGISTRY}/${IMAGE_NAME}-app:${IMAGE_TAG}"
             }
         }
 
         stage('Deploy (Staging)') {
             steps {
-                bat 'docker compose down --remove-orphans || exit 0'
-                bat 'docker compose up -d'
+                bat '''
+                echo ===============================
+                echo CLEANING OLD DEPLOYMENT
+                echo ===============================
+
+                docker compose down --volumes --remove-orphans || exit 0
+
+                docker rm -f breachlens-ml || exit 0
+                docker rm -f breachlens-app || exit 0
+                docker rm -f breachlens-nginx || exit 0
+                docker rm -f breachlens-db || exit 0
+
+                echo ===============================
+                echo STARTING NEW DEPLOYMENT
+                echo ===============================
+
+                docker compose up -d --build
+                '''
             }
         }
 
-        stage('Smoke Tests') {
+        stage('Health Check (Smoke Test)') {
             steps {
-                echo "Waiting for services to be healthy..."
-                bat "powershell -Command \"Start-Sleep -Seconds 30\""
-                
-                // Check Nginx endpoint (Proxy for App)
-                bat 'curl -f http://localhost/health || exit 0'
-                
-                // Check direct ML health (Mapped to 8001 in compose)
-                bat 'curl -f http://localhost:8001/health || exit 0'
+                bat '''
+                echo ===============================
+                echo RUNNING HEALTH CHECKS
+                echo ===============================
+
+                set max_retries=10
+                set count=0
+
+                :loop
+                curl -f http://localhost/health >nul 2>&1
+                if %errorlevel%==0 (
+                    echo App is healthy!
+                    exit /b 0
+                )
+
+                set /a count+=1
+                if %count%==%max_retries% (
+                    echo Health check failed!
+                    exit /b 1
+                )
+
+                timeout /t 5 >nul
+                goto loop
+                '''
             }
         }
     }
@@ -86,10 +117,12 @@ pipeline {
         success {
             echo '✅ Pipeline completed successfully!'
         }
+
         failure {
-            echo '❌ Pipeline failed! Rolling back or checking logs...'
-            bat 'docker compose logs app'
+            echo '❌ Pipeline failed! Collecting logs...'
+            bat 'docker compose logs'
         }
+
         always {
             bat 'docker compose ps'
         }
