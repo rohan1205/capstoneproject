@@ -16,7 +16,7 @@ services:
       context: ./ml
     restart: unless-stopped
     ports:
-      - "8001:8000"
+      - "8003:8000"   # 🔥 UPDATED (was 8001)
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"]
       interval: 30s
@@ -54,7 +54,7 @@ services:
     build: ./nginx
     restart: unless-stopped
     ports:
-      - "8082:80"   # 🔥 FIXED PORT (was 80)
+      - "8082:80"   # 🔥 UPDATED (was 80)
     depends_on:
       - app
     networks:
