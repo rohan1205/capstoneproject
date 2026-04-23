@@ -11,6 +11,7 @@ pipeline {
         timestamps()
         buildDiscarder(logRotator(numToKeepStr: '15'))
         timeout(time: 30, unit: 'MINUTES')
+        disableConcurrentBuilds()  // ✅ Prevents port conflicts from parallel runs
     }
 
     stages {
@@ -69,10 +70,18 @@ pipeline {
 
                 docker compose down --volumes --remove-orphans || exit 0
 
-                docker rm -f breachlens-ml || exit 0
-                docker rm -f breachlens-app || exit 0
+                docker rm -f breachlens-ml   || exit 0
+                docker rm -f breachlens-app  || exit 0
                 docker rm -f breachlens-nginx || exit 0
-                docker rm -f breachlens-db || exit 0
+                docker rm -f breachlens-db   || exit 0
+
+                echo ===============================
+                echo FREEING PORTS
+                echo ===============================
+
+                for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8003') do taskkill /F /PID %%a 2>nul || exit 0
+                for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8082') do taskkill /F /PID %%a 2>nul || exit 0
+                for /f "tokens=5" %%a in ('netstat -ano ^| findstr :27017') do taskkill /F /PID %%a 2>nul || exit 0
 
                 echo ===============================
                 echo STARTING NEW DEPLOYMENT
@@ -102,10 +111,11 @@ pipeline {
 
                 set /a count+=1
                 if %count%==%max_retries% (
-                    echo Health check failed!
+                    echo Health check failed after %max_retries% attempts!
                     exit /b 1
                 )
 
+                echo Attempt %count%/%max_retries% - Waiting 5 seconds...
                 timeout /t 5 >nul
                 goto loop
                 '''
@@ -121,10 +131,13 @@ pipeline {
         failure {
             echo '❌ Pipeline failed! Collecting logs...'
             bat 'docker compose logs'
+            bat 'docker compose ps'
         }
 
         always {
             bat 'docker compose ps'
+            // ✅ Always clean up to avoid port leaks for next run
+            bat 'docker compose down --volumes --remove-orphans || exit 0'
         }
     }
 }
