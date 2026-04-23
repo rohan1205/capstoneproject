@@ -49,7 +49,7 @@ services:
       ml:
         condition: service_healthy
 
-  # ── Nginx (Reverse Proxy) ──
+  # ── Nginx (Reverse dd Proxy) ──
   nginx:
     build: ./nginx
     restart: unless-stopped
