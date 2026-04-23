@@ -62,40 +62,67 @@ graph TD
 
 ---
 
-## 🚦 Getting Started
+## 🚦 Getting Started and Running the App
 
-### 1. Prerequisites
+### Option 1: Running with Docker Compose (Recommended)
+This is the easiest way to run the entire stack (Node.js App, MongoDB, ML Service, and Nginx proxy).
+
+Start all services:
+```bash
+docker compose up -d --build
+```
+The application will be available at `http://localhost` (or `http://localhost:3000` via the Node backend directly).
+
+Stop and clean up all services:
+```bash
+docker compose down --remove-orphans
+```
+
+### Option 2: Local Development
+If you want to run the components separately for development:
+
+#### 1. Prerequisites
 - [Node.js](https://nodejs.org/) (v18+)
 - [Python](https://www.python.org/) (v3.11+)
-- [Docker](https://www.docker.com/) & [Docker Compose](https://docs.docker.com/compose/)
 - MongoDB (Local or Atlas)
 
-### 2. Environment Setup
+#### 2. Environment Setup
 Clone the repository and create a `.env` file in the root:
 ```bash
 cp .env.example .env
 ```
 Configure your credentials in `.env` (MongoDB URI, Google OAuth, Session Secret, etc.).
 
-### 3. Local Development
-**Backend Installation:**
+#### 3. Backend & ML Installation
+
+**Backend:**
 ```bash
 npm install
+```
+
+**ML Service:**
+```bash
+pip install -r requirements.txt
+python ml/train_model.py # To train the initial model
+```
+
+#### 4. Run Services (Separate Terminals)
+
+**Terminal 1 (Backend ML Service):**
+```bash
+python -m uvicorn ml.api:app --reload --port 8000
+```
+
+**Terminal 2 (Node.js Web App):**
+```bash
 npm run dev
 ```
+*(Make sure your MongoDB is running locally on port 27017 before starting this)*
 
-**ML Service Installation:**
-```bash
-pip install -r ml/requirements.txt
-python ml/train_model.py # To train the initial model
-uvicorn ml.api:app --host 0.0.0.0 --port 8000 --reload
-```
-
-### 4. Running with Docker (Recommended)
-Launch the entire stack with a single command:
-```bash
-npm run docker:up
-```
+#### 5. Access the Services
+- Main App: `http://localhost:3000`
+- App Health check: `http://localhost:3000/health`
+- ML API Health check: `http://localhost:8000/health`
 
 ---
 
