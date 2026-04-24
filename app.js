@@ -41,7 +41,7 @@ app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
 
 // ─────────────────────────────
-// Middleware
+// Middleware //
 // ─────────────────────────────
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
