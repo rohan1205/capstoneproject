@@ -111,7 +111,7 @@ pipeline {
                 echo RUNNING HEALTH CHECKS
                 echo ===============================
 
-                set max_retries=10
+                set max_retries=20
                 set count=0
 
                 :loop

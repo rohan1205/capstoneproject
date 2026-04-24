@@ -19,7 +19,7 @@ services:
       - "8003:8000"   # 🔥 UPDATED (was 8001)
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"]
-      interval: 30s
+      interval: 10s
       timeout: 5s
       retries: 5
     networks:
