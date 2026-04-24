@@ -9,7 +9,8 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const axios = require('axios');
 
-const passport = require('./config/passport');
+const passport = require('passport');
+require('./config/passport'); 
 const authRoutes = require('./routes/auth');
 const breachRoutes = require('./routes/breach');
 const Prediction = require('./models/Prediction');

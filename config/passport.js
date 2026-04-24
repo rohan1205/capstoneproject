@@ -3,12 +3,13 @@ const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/User');
 
-// Serialize user into session
+// ==============================
+// Serialize / Deserialize
+// ==============================
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
-// Deserialize user from session
 passport.deserializeUser(async (id, done) => {
   try {
     const user = await User.findById(id);
@@ -18,77 +19,88 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-// ──── Local Strategy ────test
+// ==============================
+// Local Strategy
+// ==============================
 passport.use(new LocalStrategy(
   { usernameField: 'email' },
   async (email, password, done) => {
     try {
       const user = await User.findOne({ email: email.toLowerCase() });
+
       if (!user) {
         return done(null, false, { message: 'No account with that email.' });
       }
+
       if (!user.password) {
-        return done(null, false, { message: 'This account uses Google login. Please sign in with Google.' });
+        return done(null, false, {
+          message: 'This account uses Google login. Please sign in with Google.'
+        });
       }
+
       const isMatch = await user.comparePassword(password);
+
       if (!isMatch) {
         return done(null, false, { message: 'Incorrect password.' });
       }
+
       return done(null, user);
+
     } catch (err) {
       return done(err);
     }
   }
 ));
 
-const googleOAuthEnabled = Boolean(
-  process.env.GOOGLE_CLIENT_ID &&
-  process.env.GOOGLE_CLIENT_SECRET &&
-  process.env.GOOGLE_CALLBACK_URL &&
-  process.env.GOOGLE_CLIENT_ID !== 'your-google-client-id'
-);
+// ==============================
+// Google OAuth Strategy
+// ==============================
 
-// ──── Google OAuth Strategy ────
-if (googleOAuthEnabled) {
-  passport.use(new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_CALLBACK_URL
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      try {
-        // Check if user already exists with this Google ID
-        let user = await User.findOne({ googleId: profile.id });
-        if (user) return done(null, user);
+console.log("🔍 GOOGLE ENV CHECK:");
+console.log("CLIENT_ID:", process.env.GOOGLE_CLIENT_ID);
+console.log("CALLBACK:", process.env.GOOGLE_CALLBACK_URL);
 
-        // Check if user exists with same email
-        user = await User.findOne({ email: profile.emails[0].value });
-        if (user) {
-          user.googleId = profile.id;
-          user.avatar = profile.photos[0]?.value || '';
-          await user.save();
-          return done(null, user);
-        }
+passport.use(new GoogleStrategy(
+  {
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: process.env.GOOGLE_CALLBACK_URL
+  },
+  async (accessToken, refreshToken, profile, done) => {
+    try {
+      console.log("✅ Google login triggered:", profile.displayName);
 
-        // Create new user
-        user = await User.create({
-          googleId: profile.id,
-          name: profile.displayName,
-          email: profile.emails[0].value,
-          avatar: profile.photos[0]?.value || ''
-        });
+      // 1. Check by Google ID
+      let user = await User.findOne({ googleId: profile.id });
+      if (user) return done(null, user);
+
+      // 2. Check by email
+      user = await User.findOne({ email: profile.emails[0].value });
+
+      if (user) {
+        user.googleId = profile.id;
+        user.avatar = profile.photos?.[0]?.value || '';
+        await user.save();
         return done(null, user);
-      } catch (err) {
-        return done(err);
       }
+
+      // 3. Create new user
+      user = await User.create({
+        googleId: profile.id,
+        name: profile.displayName,
+        email: profile.emails[0].value,
+        avatar: profile.photos?.[0]?.value || ''
+      });
+
+      return done(null, user);
+
+    } catch (err) {
+      console.error("❌ Google Auth Error:", err);
+      return done(err, null);
     }
-  ));
-} else {
-  if (process.env.NODE_ENV === 'production') {
-    console.warn('Google OAuth disabled. Set GOOGLE_CLIENT_ID/SECRET/CALLBACK_URL to enable it.');
   }
-}
+));
+
+console.log("✅ Google Strategy Registered");
 
 module.exports = passport;
-module.exports.googleOAuthEnabled = googleOAuthEnabled;
