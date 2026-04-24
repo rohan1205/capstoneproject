@@ -93,7 +93,9 @@ pipeline {
 
                 for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8003') do taskkill /F /PID %%a 2>nul
                 for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8082') do taskkill /F /PID %%a 2>nul
+                for /f "tokens=5" %%a in ('netstat -ano ^| findstr :3000') do taskkill /F /PID %%a 2>nul
                 for /f "tokens=5" %%a in ('netstat -ano ^| findstr :27017') do taskkill /F /PID %%a 2>nul
+                for /f "tokens=5" %%a in ('netstat -ano ^| findstr :27018') do taskkill /F /PID %%a 2>nul
 
                 echo ===============================
                 echo STARTING NEW DEPLOYMENT
