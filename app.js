@@ -35,7 +35,7 @@ if (isProduction) {
 }
 
 // ─────────────────────────────
-// View Engine
+// View Engine //
 // ─────────────────────────────
 app.set('view engine', 'ejs');
 app.set('views', __dirname + '/views');
