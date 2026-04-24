@@ -41,3 +41,5 @@ pipeline {
         }
     }
 }
+
+# Jenkinsfile for CI/CD pipeline to build and run the application using Docker Compose.
