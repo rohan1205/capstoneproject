@@ -91,9 +91,9 @@ pipeline {
                 echo FREEING PORTS
                 echo ===============================
 
-                for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8003') do taskkill /F /PID %%a 2>nul || exit 0
-                for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8082') do taskkill /F /PID %%a 2>nul || exit 0
-                for /f "tokens=5" %%a in ('netstat -ano ^| findstr :27017') do taskkill /F /PID %%a 2>nul || exit 0
+                for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8003') do taskkill /F /PID %%a 2>nul
+                for /f "tokens=5" %%a in ('netstat -ano ^| findstr :8082') do taskkill /F /PID %%a 2>nul
+                for /f "tokens=5" %%a in ('netstat -ano ^| findstr :27017') do taskkill /F /PID %%a 2>nul
 
                 echo ===============================
                 echo STARTING NEW DEPLOYMENT
@@ -128,7 +128,7 @@ pipeline {
                 )
 
                 echo Attempt %count%/%max_retries% - Waiting 5 seconds...
-                timeout /t 5 >nul
+                ping -n 6 127.0.0.1 >nul
                 goto loop
                 '''
             }
